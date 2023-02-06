@@ -87,12 +87,33 @@ export default {
         },
         {
           icon: "el-icon-lx-copy",
-          index: "tabs",
-          title: "tab选项卡",
+          index: "3",
+          title: "商品管理",
+          subs: [
+            {
+              index: "goodstype",
+              title: "品类管理",
+            },
+            {
+              index: "goodslist",
+              title: "商品列表",
+            },
+          ],
+        },
+        {
+          icon: "el-icon-lx-copy",
+          index: "4",
+          title: "模板管理",
+          subs: [
+            {
+              index: "template",
+              title: "货道模板",
+            },
+          ],
         },
         {
           icon: "el-icon-lx-calendar",
-          index: "3",
+          index: "9",
           title: "表单相关",
           subs: [
             {
@@ -121,7 +142,7 @@ export default {
         },
         {
           icon: "el-icon-lx-calendar",
-          index: "4",
+          index: "11",
           title: "树形插件",
           subs: [
             {
@@ -158,7 +179,7 @@ export default {
         },
         {
           icon: "el-icon-rank",
-          index: "6",
+          index: "12",
           title: "拖拽组件",
           subs: [
             {
@@ -173,7 +194,7 @@ export default {
         },
         {
           icon: "el-icon-lx-warn",
-          index: "7",
+          index: "13",
           title: "错误处理",
           subs: [
             {

@@ -18,7 +18,7 @@
           </el-tooltip>
         </div>
         <!-- 消息中心 -->
-        <div class="btn-bell">
+        <!-- <div class="btn-bell">
           <el-tooltip
             effect="dark"
             :content="message ? `有${message}条未读消息` : `消息中心`"
@@ -29,7 +29,7 @@
             </router-link>
           </el-tooltip>
           <span class="btn-bell-badge" v-if="message"></span>
-        </div>
+        </div> -->
         <!-- 用户头像 -->
         <div class="user-avator">
           <img src="../../assets/img/img.jpg" />
@@ -41,10 +41,10 @@
             <i class="el-icon-caret-bottom"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <router-link to="/admin">
+            <!-- <router-link to="/admin">
               <el-dropdown-item>用户信息</el-dropdown-item>
             </router-link>
-            <el-dropdown-item command="user">修改密码</el-dropdown-item>
+            <el-dropdown-item command="user">修改密码</el-dropdown-item> -->
             <el-dropdown-item divided command="loginout"
               >退出登录</el-dropdown-item
             >

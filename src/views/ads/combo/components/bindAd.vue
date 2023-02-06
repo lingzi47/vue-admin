@@ -86,9 +86,7 @@ export default {
       dialogVisible: false,
       shop: "",
       name: "",
-
       checked: true,
-
       list: [
         {
           img: "http://118.178.89.122/upload/video/20221220/7c41e63d76e140b480b476c51d1fb6b9.mp4",
@@ -139,7 +137,6 @@ export default {
           flag: true,
         },
       ],
-
       page: {
         //分页信息
         currentPage: 1, //当前页
@@ -181,7 +178,6 @@ export default {
       this.dialogVisible = true;
       this.ruleForm = item;
     },
-
     addData(type) {
       this.$refs.addData.show(1, {});
     },
@@ -195,12 +191,10 @@ export default {
       console.log(`当前页: ${val}`);
     },
     searchData() {},
-
     close() {
       this.dialogVisible = false;
-      //清空时,反向深拷贝
+     
     },
-
     submitForm() {
       console.log(this.ids);
       //   this.$refs.ruleForm.validate(async (valid) => {

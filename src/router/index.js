@@ -43,6 +43,27 @@ export default new Router({
                     }
                 },
                 {
+                    path: '/goodstype',
+                    component: resolve => require(['../views/goods/goodstype/index.vue'], resolve),
+                    meta: {
+                        title: '品类管理'
+                    }
+                },
+                {
+                    path: '/goodslist',
+                    component: resolve => require(['../views/goods/goodslist/index.vue'], resolve),
+                    meta: {
+                        title: '商品列表'
+                    }
+                },
+                {
+                    path: '/template',
+                    component: resolve => require(['../views/template/template/index.vue'], resolve),
+                    meta: {
+                        title: '货道模板'
+                    }
+                },
+                {
                     path: '/icon',
                     component: resolve => require(['../components/page/Icon.vue'], resolve),
                     meta: {
