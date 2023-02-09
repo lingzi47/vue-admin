@@ -17,9 +17,9 @@
       >
         <el-row :gutter="15">
           <el-col :span="24">
-            <el-form-item label="广告名称" prop="name">
+            <el-form-item label="广告名称" prop="ad_name">
               <el-input
-                v-model="ruleForm.name"
+                v-model="ruleForm.ad_name"
                 style="width: 180px"
                 placeholder="请输入广告名称"
               ></el-input>
@@ -27,19 +27,19 @@
           </el-col>
 
           <el-col :span="24">
-            <el-form-item label="广告详情" prop="name">
+            <el-form-item label="广告描述" prop="ad_details">
               <el-input
-                v-model="ruleForm.des"
+                v-model="ruleForm.ad_details"
                 style="width: 180px"
-                placeholder="请输入广告详情"
+                placeholder="请输入广告描述"
               ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="广告视频" prop="img">
+            <el-form-item label="广告视频" prop="ad_url">
               <el-upload
                 class="avatar-uploader"
-                action="https://yujian02.xyz/command/ossUpload?filename=file"
+                action="https://testboxapi.yujian02.xyz/api/common/ossUpload?file=file"
                 :show-file-list="false"
                 :on-success="handleAvatarSuccess"
                 :before-upload="beforeAvatarUpload"
@@ -50,9 +50,9 @@
                   width="100%"
                   height="100%"
                   poster=""
-                  v-if="img"
+                  v-if="ad_url"
                 >
-                  <source type="video/mp4" :src="img" class="avatar" />
+                  <source type="video/mp4" :src="ad_url" class="avatar" />
                 </video>
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
               </el-upload>
@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import {} from "@/request/api";
+import { advideoAdd, advideoEdit } from "@/request/api";
 
 export default {
   name: "AddDialog",
@@ -78,18 +78,23 @@ export default {
   data() {
     return {
       type: "",
-      img: "",
+      ad_url: "",
       dialogVisible: false,
       ruleForm: {
-        name: "",
-        des: "",
-        img: "",
+        ad_name: "",
+        ad_details: "",
+        ad_url: "",
         id: "",
       },
       FormSearch: {},
       rules: {
-        name: [{ required: true, message: "请输入广告名称", trigger: "blur" }],
-        img: [{ required: true, message: "请选择广告", trigger: "blur" }],
+        ad_name: [
+          { required: true, message: "请输入广告名称", trigger: "blur" },
+        ],
+        ad_details: [
+          { required: true, message: "请输入广告描述", trigger: "blur" },
+        ],
+        ad_url: [{ required: true, message: "请选择广告", trigger: "blur" }],
       },
     };
   },
@@ -105,12 +110,12 @@ export default {
       console.log(item);
       this.dialogVisible = true;
       this.ruleForm = item;
-      this.img = this.ruleForm.img;
+      this.ad_url = this.ruleForm.ad_url;
     },
     //成功
     handleAvatarSuccess(res, file) {
-      this.ruleForm.img = res.data;
-      this.img = this.ruleForm.img;
+      this.ruleForm.ad_url = res;
+      this.ad_url = this.ruleForm.ad_url;
     },
     //格式判断
     beforeAvatarUpload(file) {
@@ -129,24 +134,43 @@ export default {
     submitForm() {
       this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {
-          let params = {
-            name: this.ruleForm.name,
-            des: this.ruleForm.des,
-            img: this.ruleForm.img,
-          };
-          unrealOrderAdd(params).then((res) => {
-            if (res.data.code == 200) {
-              this.$message.success("新增成功");
-              this.$parent.getUserList();
+          if (this.type == 1) {
+            let params = {
+              ad_name: this.ruleForm.ad_name,
+              ad_url: this.ruleForm.ad_url,
+              ad_details: this.ruleForm.ad_details,
+            };
+
+            advideoAdd(params).then((res) => {
+              if (res.data.code == 200) {
+                this.$message.success("新增成功");
+              } else {
+                this.$message.error(res.data.msg);
+              }
               this.close();
               this.isDisable = false;
-            } else {
-              this.$message.error(res.data.msg);
-              this.$parent.getUserList();
+              this.$parent.getList();
+            });
+          } else {
+            let params = {
+              ad_name: this.ruleForm.ad_name,
+              ad_url: this.ruleForm.ad_url,
+              ad_details: this.ruleForm.ad_details,
+            };
+
+            let id = this.ruleForm.id;
+            console.log(id);
+            advideoEdit(params, id).then((res) => {
+              if (res.data.code == 200) {
+                this.$message.success("修改成功");
+              } else {
+                this.$message.error(res.data.msg);
+              }
               this.close();
               this.isDisable = false;
-            }
-          });
+              this.$parent.getList();
+            });
+          }
         } else {
           return false;
         }

@@ -2,21 +2,26 @@
   <div>
     <div class="topserch">
       <el-form :inline="true">
-        <el-form-item label="品类">
+        <el-form-item label="商品品类">
           <el-select
+            v-model="type_id"
             clearable
-            v-model="goodstype"
-            placeholder="请选择品类"
-            style="width: 180px"
+            style="width: 230px"
+            filterable
+            placeholder="请选择商品品类"
           >
-            <el-option label="上架" value="1"></el-option>
-            <el-option label="下架" value="1"></el-option>
+            <el-option
+              v-for="item in arr"
+              :value="item.id"
+              :label="item.name"
+              :key="item.id"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="商品名称">
           <el-input
             style="width: 180px"
-            v-model="goodsname"
+            v-model="name"
             clearable
             placeholder="请输入商品名称"
           ></el-input>
@@ -24,12 +29,12 @@
         <el-form-item label="状态">
           <el-select
             clearable
-            v-model="sta"
+            v-model="status"
             placeholder="请选择状态"
             style="width: 180px"
           >
             <el-option label="上架" value="1"></el-option>
-            <el-option label="下架" value="1"></el-option>
+            <el-option label="下架" value="2"></el-option>
           </el-select>
         </el-form-item>
 
@@ -68,32 +73,35 @@
             }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="goodsname" label="商品名称" align="center">
+        <el-table-column prop="name" label="商品名称" align="center">
         </el-table-column>
         <el-table-column label="图片" align="center">
           <template slot-scope="scope">
-            <img :src="scope.row.goodsimg" class="table-img" width="60px" />
+            <img :src="scope.row.imagesPath" class="table-img" width="60px" />
           </template>
         </el-table-column>
-        <el-table-column prop="goodstype" label="商品品类" align="center">
+        <el-table-column label="商品品类" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.goods_type.name }}</span>
+          </template>
         </el-table-column>
 
         <el-table-column prop="sort" label="排序" align="center">
         </el-table-column>
         <el-table-column label="状态" align="center">
           <template slot-scope="scope">
-            <el-link type="success" v-if="scope.row.sta == 10">上架</el-link>
-            <el-link type="danger" v-if="scope.row.sta == 20">下架</el-link>
+            <el-link type="success" v-if="scope.row.status == 1">上架</el-link>
+            <el-link type="danger" v-if="scope.row.status == 2">下架</el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="price" label="价格" align="center">
+        <el-table-column prop="salePrice" label="价格" align="center">
         </el-table-column>
-        <el-table-column prop="cost" label="成本" align="center">
+        <el-table-column prop="costPrice" label="成本" align="center">
         </el-table-column>
 
-        <el-table-column prop="createtime" label="创建日期" align="center">
+        <el-table-column prop="created_at" label="创建日期" align="center">
         </el-table-column>
-        <el-table-column label="操作" align="center" width="350">
+        <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <el-link
               type="warning"
@@ -103,7 +111,11 @@
               >修改</el-link
             >
 
-            <el-link type="danger" :underline="false" style="margin-left: 10px"
+            <el-link
+              type="danger"
+              :underline="false"
+              style="margin-left: 10px"
+              @click="deleteData(scope.row)"
               >删除</el-link
             >
           </template>
@@ -126,54 +138,89 @@
 
 <script>
 import addData from "./components/addData.vue";
+import { goodsList, typeList, goodsDel } from "@/request/api";
 export default {
   components: {
     addData,
   },
   data() {
     return {
-      goodstype: "",
-      goodsname: "",
-      sta: "",
+      type_id: "",
+      name: "",
+      arr: [],
+      status: "",
       page: {
         //分页信息
         currentPage: 1, //当前页
         pageSize: 10, //每页条数
         total: 0, //总条数
       },
-      list: [
-        {
-          goodsname: "口罩",
-          goodsimg:
-            "https://ts4.cn.mm.bing.net/th?id=ORMS.c58a104287e6448896d9fd6e4afcd5a5&pid=Wdp&w=300&h=156&qlt=90&c=1&rs=1&dpr=1&p=0",
-          goodstype: "默认",
-          sort: "排序",
-          sta: "20",
-          price: "10",
-          cost: "3",
-          createtime: "创建时间",
-          id: "1",
-        },
-      ],
+      list: [],
     };
+  },
+  created() {
+    this.getList();
+    this.typeList();
   },
   methods: {
     refresh() {
-      this.goodstype = "";
-      this.sta = "";
-      this.goodsname = "";
+      this.type_id = "";
+      this.status = "";
+      this.name = "";
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
+      this.page.pageSize = val;
+      this.getList();
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
+      this.page.currentPage = val;
+      this.getList();
     },
     //利用type区分增加还是修改
     addData(type) {
       this.$refs.addData.show(1, {});
     },
-    searchData() {},
+    typeList() {
+      let params = {
+        page: 1,
+        limit: 100,
+      };
+      typeList(params).then((res) => {
+        console.log(res.data.data);
+
+        this.arr = res.data.data.list;
+      });
+    },
+    getList() {
+      let params = {
+        page: this.page.currentPage,
+        limit: this.page.pageSize,
+        name: this.name,
+        status: this.status,
+        type_id: this.type_id,
+      };
+      goodsList(params).then((res) => {
+        console.log(res.data.data);
+        this.page.total = res.data.data.total;
+        this.list = res.data.data.list;
+      });
+    },
+    searchData() {
+      let params = {
+        page: 1,
+        limit: this.page.pageSize,
+        name: this.name,
+        status: this.status,
+        type_id: this.type_id,
+      };
+      goodsList(params).then((res) => {
+        console.log(res.data.data);
+        this.page.total = res.data.data.total;
+        this.list = res.data.data.list;
+      });
+    },
     editData(type, item) {
       this.$refs.addData.show(2, JSON.parse(JSON.stringify(item)));
     },
@@ -181,23 +228,20 @@ export default {
       var ids = select.map((i) => i.id).toString();
       console.log(ids);
     },
-    deleteData(id) {
+    deleteData(row) {
+      let id = row.id;
       this.$confirm("是否删除此信息？", "提示", {
         type: "warning",
       })
         .then(async () => {
-          // let params = {
-          //   token: sessionStorage.getItem("token"),
-          //   id: id,
-          // };
-          // goodschoosedel(params).then((res) => {
-          //   if (res.data.code == 200) {
-          //     this.getUserList();
-          //     this.$message.success("删除成功");
-          //   } else {
-          //     this.$message.error(res.data.msg);
-          //   }
-          // });
+          goodsDel(id).then((res) => {
+            if (res.data.code == 200) {
+              this.$message.success("删除成功");
+            } else {
+              this.$message.error(res.data.msg);
+            }
+            this.getList();
+          });
         })
         .catch(() => {});
     },

@@ -5,24 +5,12 @@
         <el-form-item label="广告名称">
           <el-input
             style="width: 180px"
-            v-model="name"
+            v-model="ad_name"
             clearable
             placeholder="请输入广告名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="商户">
-          <el-select
-            clearable
-            v-model="shop"
-            placeholder="请选择商户"
-            style="width: 250px"
-          >
-            <el-option
-              label="预见未来（辽宁）计算机软件科技有限公司"
-              value="1"
-            ></el-option>
-          </el-select>
-        </el-form-item>
+
         <el-form-item style="float: right">
           <el-button type="primary" icon="el-icon-refresh" @click="refresh"
             >重置</el-button
@@ -51,15 +39,15 @@
               height="100%"
               poster=""
             >
-              <source type="video/mp4" :src="item.img" />
+              <source type="video/mp4" :src="item.ad_url" />
             </video>
             <div style="padding: 14px">
-              <p>{{ item.name }}</p>
+              <p>{{ item.ad_name }}</p>
               <p style="margin-top: 5px; font-size: 14px; color: #999">
-                {{ item.des }}
+                {{ item.ad_details }}
               </p>
               <div class="bottom clearfix">
-                <time class="time">{{ item.time }}</time>
+                <time class="time">{{ item.created_at }}</time>
                 <el-button type="text" class="button" @click="editData(2, item)"
                   >修改</el-button
                 >
@@ -75,12 +63,23 @@
           </el-card>
         </el-col>
       </el-row>
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="page.currentPage"
+        :page-sizes="[12, 24, 48, 96]"
+        :page-size="12"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="page.total"
+      >
+      </el-pagination>
       <add-data ref="addData" />
     </div>
   </div>
 </template>
 
 <script>
+import { adVideo, advideoDel } from "@/request/api";
 import addData from "./components/addData.vue";
 export default {
   components: {
@@ -88,105 +87,82 @@ export default {
   },
   data() {
     return {
-      shop: "",
-      name: "",
-      list: [
-        {
-          img: "http://118.178.89.122/upload/video/20221220/7c41e63d76e140b480b476c51d1fb6b9.mp4",
-          name: "广告名称",
-          des: "详情",
-          time: "时间",
-          id: "1",
-        },
-        {
-          img: "http://118.178.89.122/upload/video/20221220/7c41e63d76e140b480b476c51d1fb6b9.mp4",
-          name: "广告名称",
-          des: "详情",
-          time: "时间",
-          id: "2",
-        },
-        {
-          img: "http://118.178.89.122/upload/video/20221220/7c41e63d76e140b480b476c51d1fb6b9.mp4",
-          name: "广告名称",
-          des: "详情",
-          time: "时间",
-          id: "3",
-        },
-        {
-          img: "http://118.178.89.122/upload/video/20221220/7c41e63d76e140b480b476c51d1fb6b9.mp4",
-          name: "广告名称",
-          des: "详情",
-          time: "时间",
-          id: "4",
-        },
-        {
-          img: "http://118.178.89.122/upload/video/20221220/7c41e63d76e140b480b476c51d1fb6b9.mp4",
-          name: "广告名称",
-          des: "详情",
-          time: "时间",
-          id: "5",
-        },
-        {
-          img: "http://118.178.89.122/upload/video/20221220/7c41e63d76e140b480b476c51d1fb6b9.mp4",
-          name: "广告名称",
-          des: "详情",
-          time: "时间",
-          id: "6",
-        },
-        {
-          img: "http://118.178.89.122/upload/video/20221220/7c41e63d76e140b480b476c51d1fb6b9.mp4",
-          name: "广告名称",
-          des: "详情",
-          time: "时间",
-          id: "7",
-        },
-        {
-          img: "http://118.178.89.122/upload/video/20221220/7c41e63d76e140b480b476c51d1fb6b9.mp4",
-          name: "广告名称",
-          des: "详情",
-          time: "时间",
-          id: "8",
-        },
-        {
-          img: "http://118.178.89.122/upload/video/20221220/7c41e63d76e140b480b476c51d1fb6b9.mp4",
-          name: "广告名称",
-          des: "详情",
-          time: "时间",
-          id: "9",
-        },
-      ],
+      ad_name: "",
+      list: [],
+      page: {
+        //分页信息
+        currentPage: 1, //当前页
+        pageSize: 12, //每页条数
+        total: 0, //总条数
+      },
     };
   },
+  created() {
+    this.getList();
+  },
   methods: {
+    getList() {
+      let params = {
+        page: this.page.currentPage,
+        limit: this.page.pageSize,
+
+        ad_name: this.ad_name,
+      };
+      let headers = {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      };
+      adVideo(params, headers).then((res) => {
+        this.page.total = res.data.total;
+        this.list = res.data.list;
+      });
+    },
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
+      this.page.pageSize = val;
+      this.getList();
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
+      this.page.currentPage = val;
+      this.getList();
+    },
     refresh() {
-      this.shop = "";
-      this.name = "";
+      this.ad_name = "";
     },
     //利用type区分增加还是修改
     addData(type) {
       this.$refs.addData.show(1, {});
     },
-    searchData() {},
+    searchData() {
+      let params = {
+        page: 1,
+        limit: 10,
+
+        ad_name: this.ad_name,
+      };
+
+      adVideo(params).then((res) => {
+        this.page.total = res.data.total;
+        this.list = res.data.list;
+      });
+    },
     editData(type, item) {
       this.$refs.addData.show(2, JSON.parse(JSON.stringify(item)));
     },
+
     deleteData(id) {
       this.$confirm("是否删除此信息？", "提示", {
         type: "warning",
       })
         .then(async () => {
-          // let params = {
-          //   token: sessionStorage.getItem("token"),
-          //   id: id,
-          // };
-          // goodschoosedel(params).then((res) => {
-          //   if (res.data.code == 200) {
-          //     this.getUserList();
-          //     this.$message.success("删除成功");
-          //   } else {
-          //     this.$message.error(res.data.msg);
-          //   }
-          // });
+          advideoDel(id).then((res) => {
+            if (res.data.code == 200) {
+              this.$message.success("删除成功");
+            } else {
+              this.$message.error(res.data.msg);
+            }
+            this.getList();
+          });
         })
         .catch(() => {});
     },

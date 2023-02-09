@@ -36,13 +36,15 @@
 </template>
 
 <script>
+import { login, createuser } from "@/request/api";
 export default {
   data: function () {
     return {
       ruleForm: {
-        username: "admin",
-        password: "123123",
+        username: "lct001025",
+        password: "lct001025",
       },
+      token: "",
       rules: {
         username: [
           { required: true, message: "请输入用户名", trigger: "blur" },
@@ -55,8 +57,17 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          localStorage.setItem("ms_username", this.ruleForm.username);
-          this.$router.push("/");
+          let params = {
+            name: this.ruleForm.username,
+            password: this.ruleForm.password,
+          };
+          login(params).then((res) => {
+            console.log(res.data.token);
+            this.token = res.data.token;
+            localStorage.setItem("ms_username", this.ruleForm.username);
+            localStorage.setItem("token", this.token);
+            this.$router.push("/");
+          });
         } else {
           console.log("error submit!!");
           return false;

@@ -64,10 +64,17 @@ export default new Router({
                     }
                 },
                 {
-                    path: '/icon',
-                    component: resolve => require(['../components/page/Icon.vue'], resolve),
+                    path: '/equipment',
+                    component: resolve => require(['../views/equipment/equipment/index.vue'], resolve),
                     meta: {
-                        title: '自定义图标'
+                        title: '设备信息'
+                    }
+                },
+                {
+                    path: '/replenishment',
+                    component: resolve => require(['../views/operate/replenishment/index.vue'], resolve),
+                    meta: {
+                        title: '补货设置'
                     }
                 },
                 {
@@ -77,6 +84,8 @@ export default new Router({
                         title: '自定义图标'
                     }
                 },
+
+
                 {
                     path: '/table',
                     component: resolve => require(['../components/page/BaseTable.vue'], resolve),

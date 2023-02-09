@@ -5,7 +5,7 @@
          //port:8888,
          proxy: {
              '/api': {
-                 target: 'https://yujian02.xyz/',
+                 target: 'https://testboxapi.yujian02.xyz/api/',
                  changeOrigin: true, // 是否跨域
                  pathRewrite: {
                      '^/api': '/', //需要rewrite重写的, //本地联调

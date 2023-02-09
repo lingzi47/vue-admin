@@ -2,36 +2,19 @@
   <div>
     <div class="topserch">
       <el-form :inline="true">
-        <el-form-item label="品类名称">
+        <el-form-item label="模板名称">
           <el-input
             style="width: 180px"
-            v-model="name"
+            v-model="temname"
             clearable
-            placeholder="请输入品类名称"
+            placeholder="请输入模板名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select
-            clearable
-            v-model="status"
-            placeholder="请选择状态"
-            style="width: 180px"
-          >
-            <el-option label="上架" :value="1"></el-option>
-            <el-option label="下架" :value="2"></el-option>
-          </el-select>
-        </el-form-item>
-
         <el-form-item style="float: right">
-          <el-button type="primary" icon="el-icon-refresh" @click="refresh"
-            >重置</el-button
-          >
           <el-button type="primary" icon="el-icon-search" @click="searchData"
             >搜索</el-button
           >
-          <el-button type="primary" icon="el-icon-plus" @click="addData()"
-            >新增</el-button
-          >
+          <el-button type="primary" icon="el-icon-plus">删除</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -57,39 +40,28 @@
             }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="商品品类" align="center">
+
+        <el-table-column prop="deviceName" label="设备名称" align="center">
         </el-table-column>
-        <el-table-column prop="num" label="商品数量" align="center">
-        </el-table-column>
-        <el-table-column prop="sort" label="排序" align="center">
+        <el-table-column prop="deviceCode" label="设备编号" align="center">
         </el-table-column>
         <el-table-column label="状态" align="center">
           <template slot-scope="scope">
-            <el-link type="success" v-if="scope.row.status == 1">上架</el-link>
-            <el-link type="danger" v-if="scope.row.status == 2">下架</el-link>
+            <el-link type="success" v-if="scope.row.status == 1">启用</el-link>
+            <el-link type="danger" v-if="scope.row.status == 2">禁用</el-link>
           </template>
-        </el-table-column>
-        <el-table-column prop="details" label="品类详情" align="center">
         </el-table-column>
 
         <el-table-column prop="created_at" label="创建日期" align="center">
         </el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" align="center" width="350">
           <template slot-scope="scope">
             <el-link
               type="warning"
-              @click="editData(2, scope.row)"
+              @click="showData(scope.row)"
               :underline="false"
               style="margin-left: 10px"
-              >修改</el-link
-            >
-
-            <el-link
-              type="danger"
-              :underline="false"
-              style="margin-left: 10px"
-              @click="deleteData(scope.row)"
-              >删除</el-link
+              >查看详情</el-link
             >
           </template>
         </el-table-column>
@@ -110,16 +82,16 @@
 </template>
 
 <script>
+import { deviceList } from "@/request/api";
 import addData from "./components/addData.vue";
-import { typeList, typeDel } from "@/request/api";
 export default {
   components: {
     addData,
   },
   data() {
     return {
-      name: "",
-      status: "",
+      temname: "",
+      sta: "",
       page: {
         //分页信息
         currentPage: 1, //当前页
@@ -133,27 +105,6 @@ export default {
     this.getList();
   },
   methods: {
-    refresh() {
-      this.name = "";
-      this.status = "";
-    },
-    getList() {
-      let params = {
-        page: this.page.currentPage,
-        limit: this.page.pageSize,
-        name: this.name,
-        status: this.status,
-      };
-      typeList(params).then((res) => {
-        console.log(res.data.data);
-        this.page.total = res.data.data.total;
-        this.list = res.data.data.list;
-      });
-    },
-    getSelection(select) {
-      var ids = select.map((i) => i.id).toString();
-      console.log(ids);
-    },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
       this.page.pageSize = val;
@@ -164,42 +115,41 @@ export default {
       this.page.currentPage = val;
       this.getList();
     },
-    //利用type区分增加还是修改
-    addData(type) {
-      this.$refs.addData.show(1, {});
-    },
-    searchData() {
+    getList() {
       let params = {
-        page: 1,
+        page: this.page.currentPage,
         limit: this.page.pageSize,
-        name: this.name,
         status: this.status,
       };
-      typeList(params).then((res) => {
+      deviceList(params).then((res) => {
         console.log(res.data.data);
         this.page.total = res.data.data.total;
         this.list = res.data.data.list;
       });
     },
-    editData(type, item) {
-      this.$refs.addData.show(2, JSON.parse(JSON.stringify(item)));
+    searchData() {
+      let params = {
+        page: 1,
+        limit: this.page.pageSize,
+        status: this.status,
+      };
+      deviceList(params).then((res) => {
+        console.log(res.data.data);
+        this.page.total = res.data.data.total;
+        this.list = res.data.data.list;
+      });
     },
-    deleteData(row) {
-      let id = row.id;
-      this.$confirm("是否删除此信息？", "提示", {
-        type: "warning",
-      })
-        .then(async () => {
-          typeDel(id).then((res) => {
-            if (res.data.code == 200) {
-              this.$message.success("删除成功");
-            } else {
-              this.$message.error(res.data.msg);
-            }
-            this.getList();
-          });
-        })
-        .catch(() => {});
+    //利用type区分增加还是修改
+    addData(type) {
+      this.$refs.addData.show(1, {});
+    },
+    searchData() {},
+    showData(item) {
+      this.$refs.addData.show(JSON.parse(JSON.stringify(item)));
+    },
+    getSelection(select) {
+      var ids = select.map((i) => i.id).toString();
+      console.log(ids);
     },
   },
 };

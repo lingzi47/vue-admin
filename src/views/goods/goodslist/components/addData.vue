@@ -17,49 +17,58 @@
       >
         <el-row :gutter="15">
           <el-col :span="12">
-            <el-form-item label="商品名称" prop="goodsname">
+            <el-form-item label="商品名称" prop="name">
               <el-input
-                v-model="ruleForm.goodsname"
+                v-model="ruleForm.name"
                 style="width: 180px"
                 placeholder="请输入商品名称"
               ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="品类名称" prop="goodstype">
-              <el-input
-                v-model="ruleForm.goodstype"
-                style="width: 180px"
-                placeholder="请输入品类名称"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="商品状态" prop="sta">
+            <el-form-item label="品类名称" prop="type_id">
               <el-select
+                v-model="ruleForm.type_id"
                 clearable
-                v-model="ruleForm.sta"
-                placeholder="请选择状态"
                 style="width: 180px"
+                filterable
+                placeholder="请选择商品品类"
               >
-                <el-option label="上架" value="10"></el-option>
-                <el-option label="下架" value="20"></el-option>
+                <el-option
+                  v-for="item in arr"
+                  :value="item.id"
+                  :label="item.name"
+                  :key="item.id"
+                ></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="销售价格" prop="price">
+            <el-form-item label="商品状态" prop="status">
+              <el-select
+                clearable
+                v-model="ruleForm.status"
+                placeholder="请选择状态"
+                style="width: 180px"
+              >
+                <el-option label="上架" :value="1"></el-option>
+                <el-option label="下架" :value="2"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="销售价格" prop="salePrice">
               <el-input
-                v-model="ruleForm.price"
+                v-model="ruleForm.salePrice"
                 style="width: 180px"
                 placeholder="请输入销售价格"
               ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="成本价格" prop="cost">
+            <el-form-item label="成本价格" prop="costPrice">
               <el-input
-                v-model="ruleForm.cost"
+                v-model="ruleForm.costPrice"
                 style="width: 180px"
                 placeholder="请输入成本价格"
               ></el-input>
@@ -78,12 +87,12 @@
             <el-form-item label="商品图片" prop="img">
               <el-upload
                 class="avatar-uploader"
-                action="https://yujian02.xyz/command/ossUpload?filename=file"
+                action="https://testboxapi.yujian02.xyz/api/common/ossUpload?file=file"
                 :show-file-list="false"
                 :on-success="handleAvatarSuccess"
                 :before-upload="beforeAvatarUpload"
               >
-                <img v-if="goodsimg" :src="goodsimg" class="avatar" /><i
+                <img v-if="imagesPath" :src="imagesPath" class="avatar" /><i
                   v-else
                   class="el-icon-plus avatar-uploader-icon"
                 ></i>
@@ -102,7 +111,7 @@
 </template>
 
 <script>
-import {} from "@/request/api";
+import { goodsAdd, goodsEdit, typeList } from "@/request/api";
 
 export default {
   name: "AddDialog",
@@ -110,31 +119,38 @@ export default {
   data() {
     return {
       type: "",
-      goodsimg: "",
+      imagesPath: "",
+      arr: [],
       dialogVisible: false,
       ruleForm: {
-        goodsname: "",
-        goodstype: "",
-        sta: "",
-        price: "",
-        cost: "",
+        name: "",
+        type_id: "",
+        status: "",
+        salePrice: "",
+        costPrice: "",
         sort: "",
-        goodsimg: "",
+        imagesPath: "",
         id: "",
       },
       FormSearch: {},
       rules: {
-        goodsname: [
-          { required: true, message: "请输入商品名称", trigger: "blur" },
-        ],
-        goodstype: [
+        name: [{ required: true, message: "请输入商品名称", trigger: "blur" }],
+        type_id: [
           { required: true, message: "请选择品类名称", trigger: "blur" },
         ],
-        sta: [{ required: true, message: "请选择商品状态", trigger: "blur" }],
-        price: [{ required: true, message: "请输入销售价格", trigger: "blur" }],
-        cost: [{ required: true, message: "请输入成本价格", trigger: "blur" }],
+        status: [
+          { required: true, message: "请选择商品状态", trigger: "blur" },
+        ],
+        salePrice: [
+          { required: true, message: "请输入销售价格", trigger: "blur" },
+        ],
+        costPrice: [
+          { required: true, message: "请输入成本价格", trigger: "blur" },
+        ],
         sort: [{ required: true, message: "请输入排序", trigger: "blur" }],
-        img: [{ required: true, message: "请选择商品图片", trigger: "blur" }],
+        imagesPath: [
+          { required: true, message: "请选择商品图片", trigger: "blur" },
+        ],
       },
     };
   },
@@ -142,20 +158,32 @@ export default {
   created() {
     //深拷贝 复制表单初始值也就是所有元素为空的时候
     this.FormSearch = JSON.parse(JSON.stringify(this.ruleForm));
+    this.typeList();
   },
   mounted() {},
   methods: {
+    typeList() {
+      let params = {
+        page: 1,
+        limit: 100,
+      };
+      typeList(params).then((res) => {
+        console.log(res.data.data);
+
+        this.arr = res.data.data.list;
+      });
+    },
     show(type, item) {
       this.type = type;
       console.log(item);
       this.dialogVisible = true;
       this.ruleForm = item;
-      this.goodsimg = this.ruleForm.goodsimg;
+      this.imagesPath = this.ruleForm.imagesPath;
     },
     //成功
     handleAvatarSuccess(res, file) {
-      this.ruleForm.goodsimg = res.data;
-      this.goodsimg = this.ruleForm.goodsimg;
+      this.ruleForm.imagesPath = res;
+      this.imagesPath = this.ruleForm.imagesPath;
     },
     //格式判断
     beforeAvatarUpload(file) {
@@ -170,24 +198,51 @@ export default {
       //清空时,反向深拷贝
       this.ruleForm = JSON.parse(JSON.stringify(this.FormSearch));
     },
-
     submitForm() {
       this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {
-          let params = {};
-          unrealOrderAdd(params).then((res) => {
-            if (res.data.code == 200) {
-              this.$message.success("新增成功");
-              this.$parent.getUserList();
+          if (this.type == 1) {
+            let params = {
+              name: this.ruleForm.name,
+              type_id: this.ruleForm.type_id,
+              sort: this.ruleForm.sort,
+              status: this.ruleForm.status,
+              costPrice: this.ruleForm.costPrice,
+              imagesPath: this.ruleForm.imagesPath,
+              salePrice: this.ruleForm.salePrice,
+            };
+            goodsAdd(params).then((res) => {
+              if (res.data.code == 200) {
+                this.$message.success("新增成功");
+              } else {
+                this.$message.error(res.data.msg);
+              }
               this.close();
               this.isDisable = false;
-            } else {
-              this.$message.error(res.data.msg);
-              this.$parent.getUserList();
+              this.$parent.getList();
+            });
+          } else {
+            let params = {
+              name: this.ruleForm.name,
+              type_id: this.ruleForm.type_id,
+              sort: this.ruleForm.sort,
+              status: this.ruleForm.status,
+              costPrice: this.ruleForm.costPrice,
+              imagesPath: this.ruleForm.imagesPath,
+              salePrice: this.ruleForm.salePrice,
+            };
+            let id = this.ruleForm.id;
+            goodsEdit(params, id).then((res) => {
+              if (res.data.code == 200) {
+                this.$message.success("修改成功");
+              } else {
+                this.$message.error(res.data.msg);
+              }
               this.close();
               this.isDisable = false;
-            }
-          });
+              this.$parent.getList();
+            });
+          }
         } else {
           return false;
         }

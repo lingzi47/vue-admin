@@ -16,39 +16,26 @@
         label-width="auto"
       >
         <el-row :gutter="15">
-          <el-col :span="24">
-            <el-form-item label="广告名称" prop="ad_name">
+          <el-col :span="12">
+            <el-form-item label="设备名称" prop="deviceName">
               <el-input
-                v-model="ruleForm.ad_name"
+                v-model="ruleForm.deviceName"
                 style="width: 180px"
-                placeholder="请输入广告名称"
+                placeholder="请输入设备名称"
               ></el-input>
             </el-form-item>
           </el-col>
-
-          <el-col :span="24">
-            <el-form-item label="广告描述" prop="ad_details">
-              <el-input
-                v-model="ruleForm.ad_details"
+          <el-col :span="12">
+            <el-form-item label="状态" prop="status">
+              <el-select
+                clearable
+                v-model="ruleForm.status"
+                placeholder="请选择状态"
                 style="width: 180px"
-                placeholder="请输入广告描述"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="广告图片" prop="ad_url">
-              <el-upload
-                class="avatar-uploader"
-                action="https://testboxapi.yujian02.xyz/api/common/ossUpload?file=file"
-                :show-file-list="false"
-                :on-success="handleAvatarSuccess"
-                :before-upload="beforeAvatarUpload"
               >
-                <img v-if="ad_url" :src="ad_url" class="avatar" /><i
-                  v-else
-                  class="el-icon-plus avatar-uploader-icon"
-                ></i>
-              </el-upload>
+                <el-option label="启用" :value="1"></el-option>
+                <el-option label="禁用" :value="2"></el-option>
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -63,7 +50,7 @@
 </template>
 
 <script>
-import { adimgAdd, adimgEdit } from "@/request/api";
+import { deviceAdd, deviceEdit } from "@/request/api";
 
 export default {
   name: "AddDialog",
@@ -71,23 +58,20 @@ export default {
   data() {
     return {
       type: "",
-      ad_url: "",
+      imagesPath: "",
+      arr: [],
       dialogVisible: false,
       ruleForm: {
-        ad_name: "",
-        ad_details: "",
-        ad_url: "",
+        deviceName: "",
+        status: "",
         id: "",
       },
       FormSearch: {},
       rules: {
-        ad_name: [
-          { required: true, message: "请输入广告名称", trigger: "blur" },
+        deviceName: [
+          { required: true, message: "请输入设备名称", trigger: "blur" },
         ],
-        ad_details: [
-          { required: true, message: "请输入广告描述", trigger: "blur" },
-        ],
-        ad_url: [{ required: true, message: "请选择广告", trigger: "blur" }],
+        status: [{ required: true, message: "请选择状态", trigger: "blur" }],
       },
     };
   },
@@ -103,38 +87,22 @@ export default {
       console.log(item);
       this.dialogVisible = true;
       this.ruleForm = item;
-      this.ad_url = this.ruleForm.ad_url;
     },
-    //成功
-    handleAvatarSuccess(res, file) {
-      this.ruleForm.ad_url = res;
-      this.ad_url = this.ruleForm.ad_url;
-    },
-    //格式判断
-    beforeAvatarUpload(file) {
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      if (!isLt2M) {
-        this.$message.error("上传图片大小不能超过 2MB!");
-      }
-      return isLt2M;
-    },
+
     close() {
       this.dialogVisible = false;
       //清空时,反向深拷贝
       this.ruleForm = JSON.parse(JSON.stringify(this.FormSearch));
     },
-
     submitForm() {
       this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {
           if (this.type == 1) {
             let params = {
-              ad_name: this.ruleForm.ad_name,
-              ad_url: this.ruleForm.ad_url,
-              ad_details: this.ruleForm.ad_details,
+              deviceName: this.ruleForm.deviceName,
+              status: this.ruleForm.status,
             };
-
-            adimgAdd(params).then((res) => {
+            deviceAdd(params).then((res) => {
               if (res.data.code == 200) {
                 this.$message.success("新增成功");
               } else {
@@ -146,14 +114,11 @@ export default {
             });
           } else {
             let params = {
-              ad_name: this.ruleForm.ad_name,
-              ad_url: this.ruleForm.ad_url,
-              ad_details: this.ruleForm.ad_details,
+              deviceName: this.ruleForm.deviceName,
+              status: this.ruleForm.status,
             };
-
             let id = this.ruleForm.id;
-            console.log(id);
-            adimgEdit(params, id).then((res) => {
+            deviceEdit(params, id).then((res) => {
               if (res.data.code == 200) {
                 this.$message.success("修改成功");
               } else {

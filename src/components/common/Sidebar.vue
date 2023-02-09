@@ -112,6 +112,28 @@ export default {
           ],
         },
         {
+          icon: "el-icon-lx-copy",
+          index: "5",
+          title: "设备管理",
+          subs: [
+            {
+              index: "equipment",
+              title: "设备信息",
+            },
+          ],
+        },
+        {
+          icon: "el-icon-lx-copy",
+          index: "6",
+          title: "运营管理",
+          subs: [
+            {
+              index: "replenishment",
+              title: "补货设置",
+            },
+          ],
+        },
+        {
           icon: "el-icon-lx-calendar",
           index: "9",
           title: "表单相关",

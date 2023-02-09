@@ -48,28 +48,18 @@
         </el-table-column>
         <el-table-column prop="name" label="广告组名称" align="center">
         </el-table-column>
-        <el-table-column prop="type" label="广告类型" align="center">
+        <el-table-column label="广告类型" align="center">
           <template slot-scope="scope">
-            <span type="success" v-if="scope.row.type == 1">全屏</span>
-            <span type="success" v-if="scope.row.type == 2">半屏</span>
-            <span type="success" v-if="scope.row.type == 3">上方固定</span>
+            <span type="success" v-if="scope.row.show_type == 1">全屏</span>
+            <span type="success" v-if="scope.row.show_type == 2">半屏</span>
+            <span type="success" v-if="scope.row.show_type == 3">上方固定</span>
           </template>
         </el-table-column>
-        <el-table-column prop="type" label="是否默认" align="center">
-          <template slot-scope="scope">
-            <span type="success" v-if="scope.row.isshow == 1">是</span>
-            <span type="success" v-if="scope.row.isshow == 2">否</span>
-          </template>
+        <el-table-column prop="ad_count" label="广告数量" align="center">
         </el-table-column>
-        <el-table-column prop="num" label="设备数量" align="center">
+        <el-table-column prop="remark" label="备注" align="center">
         </el-table-column>
-        <el-table-column prop="video_num" label="视频数量" align="center">
-        </el-table-column>
-        <el-table-column prop="img_num" label="图片数量" align="center">
-        </el-table-column>
-        <el-table-column prop="des" label="备注" align="center">
-        </el-table-column>
-        <el-table-column prop="createtime" label="创建日期" align="center">
+        <el-table-column prop="created_at" label="创建日期" align="center">
         </el-table-column>
         <el-table-column label="操作" align="center" width="350">
           <template slot-scope="scope">
@@ -81,7 +71,11 @@
               >修改</el-link
             >
 
-            <el-link type="danger" :underline="false" style="margin-left: 10px"
+            <el-link
+              type="danger"
+              :underline="false"
+              style="margin-left: 10px"
+              @click="deleteData(scope.row.id)"
               >删除</el-link
             >
             <el-link
@@ -91,18 +85,18 @@
               @click="bindpoint(scope.row)"
               >绑定点位</el-link
             >
-            <el-link
+            <!-- <el-link
               type="info"
               :underline="false"
               style="margin-left: 10px"
               @click="bindad(scope.row)"
               >绑定广告</el-link
-            >
+            > -->
             <el-link
               type="success"
               :underline="false"
               style="margin-left: 10px"
-              @click="push(scope.row)"
+              @click="push(scope.row.id)"
               >推送</el-link
             >
           </template>
@@ -126,6 +120,7 @@
 </template>
 
 <script>
+import { adGroup, adgroupDel, pushOnline } from "@/request/api";
 import addData from "./components/addData.vue";
 import bindPoint from "./components/bindPoint.vue";
 import bindAd from "./components/bindAd.vue";
@@ -146,52 +141,40 @@ export default {
         pageSize: 10, //每页条数
         total: 0, //总条数
       },
-      list: [
-        {
-          name: "广告组名称",
-          type: "1", //1 全屏 2半屏 3上方固定
-          num: "设备数量",
-          video_num: "视频数量",
-          img_num: "图片数量",
-          des: "详情",
-          createtime: "时间",
-          id: "1",
-          isshow: "1",
-        },
-        {
-          name: "广告组名称",
-          type: "2", //1 全屏 2半屏 3上方固定
-          num: "设备数量",
-          video_num: "视频数量",
-          img_num: "图片数量",
-          des: "详情",
-          createtime: "时间",
-          id: "2",
-          isshow: "2",
-        },
-        {
-          name: "广告组名称",
-          type: "3", //1 全屏 2半屏 3上方固定
-          num: "设备数量",
-          video_num: "视频数量",
-          img_num: "图片数量",
-          des: "详情",
-          createtime: "时间",
-          id: "3",
-          isshow: "2",
-        },
-      ],
+      list: [],
     };
   },
+  created() {
+    this.getList();
+  },
   methods: {
-    refresh() {
-      this.name = "";
+    getList() {
+      let params = {
+        page: this.page.currentPage,
+        limit: this.page.pageSize,
+
+        ad_name: this.ad_name,
+      };
+      let headers = {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      };
+      adGroup(params, headers).then((res) => {
+        this.page.total = res.data.total;
+        this.list = res.data.list;
+      });
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
+      this.page.pageSize = val;
+      this.getList();
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
+      this.page.currentPage = val;
+      this.getList();
+    },
+    refresh() {
+      this.ad_name = "";
     },
     //利用type区分增加还是修改
     addData(type) {
@@ -201,34 +184,56 @@ export default {
       var ids = select.map((i) => i.id).toString();
       console.log(ids);
     },
-    searchData() {},
+    searchData() {
+      let params = {
+        page: 1,
+        limit: 10,
+        ad_name: this.ad_name,
+      };
+
+      adGroup(params).then((res) => {
+        this.page.total = res.data.total;
+        this.list = res.data.list;
+      });
+    },
     editData(type, row) {
       this.$refs.addData.show(2, JSON.parse(JSON.stringify(row)));
     },
     bindpoint(row) {
-      this.$refs.bindPoint.show(2, JSON.parse(JSON.stringify(row)));
+      this.$refs.bindPoint.show(JSON.parse(JSON.stringify(row)));
     },
     bindad(row) {
       this.$refs.bindAd.show(2, JSON.parse(JSON.stringify(row)));
     },
-    push(row) {},
+    push(id) {
+      this.$confirm("是否推送？", "提示", {
+        type: "success",
+      })
+        .then(async () => {
+          pushOnline(id).then((res) => {
+            if (res.data.code == 200) {
+              this.$message.success("推送成功");
+            } else {
+              this.$message.error(res.data.msg);
+            }
+            this.getList();
+          });
+        })
+        .catch(() => {});
+    },
     deleteData(id) {
       this.$confirm("是否删除此信息？", "提示", {
         type: "warning",
       })
         .then(async () => {
-          // let params = {
-          //   token: sessionStorage.getItem("token"),
-          //   id: id,
-          // };
-          // goodschoosedel(params).then((res) => {
-          //   if (res.data.code == 200) {
-          //     this.getUserList();
-          //     this.$message.success("删除成功");
-          //   } else {
-          //     this.$message.error(res.data.msg);
-          //   }
-          // });
+          adgroupDel(id).then((res) => {
+            if (res.data.code == 200) {
+              this.$message.success("删除成功");
+            } else {
+              this.$message.error(res.data.msg);
+            }
+            this.getList();
+          });
         })
         .catch(() => {});
     },

@@ -193,7 +193,6 @@ export default {
     searchData() {},
     close() {
       this.dialogVisible = false;
-     
     },
     submitForm() {
       console.log(this.ids);

@@ -86,25 +86,22 @@
               }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="点位名称" align="center">
+          <el-table-column prop="deviceCode" label="设备号" align="center">
           </el-table-column>
-          <el-table-column prop="address" label="地址" align="center">
+          <el-table-column prop="deviceName" label="设备名称" align="center">
           </el-table-column>
-          <el-table-column prop="link" label="关联广告组" align="center">
+          <el-table-column label="设备状态" align="center">
             <template slot-scope="scope">
-              <span type="success" v-if="scope.row.link == 1">是</span>
-              <span type="info" v-if="scope.row.link == 2">否</span>
+              <span type="success" v-if="scope.row.status == 1">启用</span>
+              <span type="info" v-if="scope.row.status == 2">禁用</span>
             </template>
           </el-table-column>
-          <el-table-column prop="num" label="设备数量" align="center">
-          </el-table-column>
-          <el-table-column prop="createtime" label="创建日期" align="center">
+          <el-table-column prop="created_at" label="创建日期" align="center">
           </el-table-column>
           <el-table-column label="操作" align="center">
             <template slot-scope="scope">
               <el-link
                 type="info"
-                v-if="scope.row.link == 2"
                 :underline="false"
                 style="margin-left: 10px"
                 @click="unbind(scope.row)"
@@ -112,7 +109,6 @@
               >
               <el-link
                 type="success"
-                v-else
                 :underline="false"
                 style="margin-left: 10px"
                 @click="bind(scope.row)"
@@ -141,7 +137,7 @@
 </template>
 
 <script>
-import {} from "@/request/api";
+import { adDev, binding, unbinding, allBin, allUnBin } from "@/request/api";
 
 export default {
   name: "bindPoint",
@@ -149,6 +145,8 @@ export default {
   data() {
     return {
       dialogVisible: false,
+      g_id: "",
+      ids: "",
       ruleForm: {
         pointname: "",
         link: "",
@@ -161,24 +159,7 @@ export default {
         pageSize: 10, //每页条数
         total: 0, //总条数
       },
-      list: [
-        {
-          name: "广告组名称",
-          link: "1", //1 已关联 2未关联
-          num: "设备数量",
-          createtime: "时间",
-          id: "1",
-          address: "辽宁省沈阳市浑南区",
-        },
-        {
-          name: "广告组名称",
-          link: "2", //1 已关联 2未关联
-          num: "设备数量",
-          createtime: "时间",
-          id: "2",
-          address: "辽宁省沈阳市大东区",
-        },
-      ],
+      list: [],
       FormSearch: {},
     };
   },
@@ -189,29 +170,108 @@ export default {
   },
   mounted() {},
   methods: {
-    show(item) {
-      console.log(item);
+    show(row) {
+      console.log(row.id);
+      this.g_id = row.id;
       this.dialogVisible = true;
-      this.ruleForm = item;
+      this.getList();
     },
     getSelection(select) {
-      var ids = select.map((i) => i.id).toString();
-      console.log(ids);
+      this.ids = select.map((i) => i.id).toString();
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
+      this.page.pageSize = val;
+      this.getList();
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
+      this.page.currentPage = val;
+      this.getList();
     },
-    searchData() {},
-    binds() {},
-    unbinds() {},
+    getList() {
+      let params = {
+        page: this.page.currentPage,
+        limit: this.page.pageSize,
+      };
+      adDev(params).then((res) => {
+        this.page.total = res.data.total;
+        this.list = res.data.list;
+      });
+    },
+    searchData() {
+      let params = {
+        page: 1,
+        limit: 10,
+      };
+      adDev(params).then((res) => {
+        this.page.total = res.data.total;
+        this.list = res.data.list;
+      });
+    },
+    binds() {
+      if (this.ids === "") {
+        this.$message.error("请选择设备");
+      } else {
+        let params = {
+          g_id: this.g_id,
+          dev_id: this.ids,
+        };
+        allBin(params).then((res) => {
+          if (res.data.code == 200) {
+            this.$message.success("批量绑定成功");
+          } else {
+            this.$message.error(res.data.msg);
+          }
+          this.getList();
+        });
+      }
+    },
+    unbinds() {
+      if (this.ids == "") {
+        this.$message.error("请选择设备");
+      } else {
+        let params = {
+          g_id: this.g_id,
+          dev_id: this.ids,
+        };
+        allUnBin(params).then((res) => {
+          if (res.data.code == 200) {
+            this.$message.success("批量绑定成功");
+          } else {
+            this.$message.error(res.data.msg);
+          }
+          this.getList();
+        });
+      }
+    },
     bind(row) {
-      console.log(row);
+      let params = {
+        g_id: this.g_id,
+        dev_id: row.id,
+      };
+      binding(params).then((res) => {
+        if (res.data.code == 200) {
+          this.$message.success("绑定成功");
+        } else {
+          this.$message.error(res.data.msg);
+        }
+        this.getList();
+      });
     },
     unbind(row) {
-      console.log(row);
+      let params = {
+        g_id: this.g_id,
+        dev_id: row.id,
+      };
+      unbinding(params).then((res) => {
+        if (res.data.code == 200) {
+          this.$message.success("解绑成功");
+        } else {
+          this.$message.error(res.data.msg);
+        }
+        this.getList();
+      });
     },
     close() {
       this.dialogVisible = false;

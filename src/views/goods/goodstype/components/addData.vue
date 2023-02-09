@@ -17,24 +17,24 @@
       >
         <el-row :gutter="15">
           <el-col :span="12">
-            <el-form-item label="品类名称" prop="goodstype">
+            <el-form-item label="品类名称" prop="name">
               <el-input
-                v-model="ruleForm.goodstype"
+                v-model="ruleForm.name"
                 style="width: 180px"
                 placeholder="请输入品类名称"
               ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="品类状态" prop="sta">
+            <el-form-item label="品类状态" prop="status">
               <el-select
                 clearable
-                v-model="ruleForm.sta"
+                v-model="ruleForm.status"
                 placeholder="请选择状态"
                 style="width: 180px"
               >
-                <el-option label="上架" value="10"></el-option>
-                <el-option label="下架" value="20"></el-option>
+                <el-option label="上架" :value="1"></el-option>
+                <el-option label="下架" :value="2"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -48,9 +48,9 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="广告详情" prop="name">
+            <el-form-item label="品类详情" prop="details">
               <el-input
-                v-model="ruleForm.des"
+                v-model="ruleForm.details"
                 style="width: 180px"
                 placeholder="请输入广告详情"
               ></el-input>
@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import {} from "@/request/api";
+import { typeAdd, typeEdit } from "@/request/api";
 
 export default {
   name: "AddDialog",
@@ -79,19 +79,20 @@ export default {
       img: "",
       dialogVisible: false,
       ruleForm: {
-        goodstype: "",
-        des: "",
-        sta: "",
+        name: "",
+        details: "",
+        status: "",
         sort: "",
         id: "",
       },
       FormSearch: {},
       rules: {
-        goodstype: [
-          { required: true, message: "请输入品类名称", trigger: "blur" },
-        ],
-        sta: [{ required: true, message: "请选择状态", trigger: "blur" }],
+        name: [{ required: true, message: "请输入品类名称", trigger: "blur" }],
+        status: [{ required: true, message: "请选择状态", trigger: "blur" }],
         sort: [{ required: true, message: "请输入排序", trigger: "blur" }],
+        details: [
+          { required: true, message: "请输入品类详情", trigger: "blur" },
+        ],
       },
     };
   },
@@ -118,24 +119,42 @@ export default {
     submitForm() {
       this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {
-          let params = {
-            name: this.ruleForm.name,
-            des: this.ruleForm.des,
-            img: this.ruleForm.img,
-          };
-          unrealOrderAdd(params).then((res) => {
-            if (res.data.code == 200) {
-              this.$message.success("新增成功");
-              this.$parent.getUserList();
+          if (this.type == 1) {
+            let params = {
+              name: this.ruleForm.name,
+              details: this.ruleForm.details,
+              sort: this.ruleForm.sort,
+              status: this.ruleForm.status,
+            };
+            typeAdd(params).then((res) => {
+              if (res.data.code == 200) {
+                this.$message.success("新增成功");
+              } else {
+                this.$message.error(res.data.msg);
+              }
               this.close();
               this.isDisable = false;
-            } else {
-              this.$message.error(res.data.msg);
-              this.$parent.getUserList();
+              this.$parent.getList();
+            });
+          } else {
+            let params = {
+              name: this.ruleForm.name,
+              details: this.ruleForm.details,
+              sort: this.ruleForm.sort,
+              status: this.ruleForm.status,
+            };
+            let id = this.ruleForm.id;
+            typeEdit(params, id).then((res) => {
+              if (res.data.code == 200) {
+                this.$message.success("修改成功");
+              } else {
+                this.$message.error(res.data.msg);
+              }
               this.close();
               this.isDisable = false;
-            }
-          });
+              this.$parent.getList();
+            });
+          }
         } else {
           return false;
         }
