@@ -152,13 +152,9 @@ export default {
       let params = {
         page: this.page.currentPage,
         limit: this.page.pageSize,
-
         ad_name: this.ad_name,
       };
-      let headers = {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      };
-      adGroup(params, headers).then((res) => {
+      adGroup(params).then((res) => {
         this.page.total = res.data.total;
         this.list = res.data.list;
       });

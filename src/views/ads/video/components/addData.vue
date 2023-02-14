@@ -58,6 +58,19 @@
               </el-upload>
             </el-form-item>
           </el-col>
+          <el-col :span="24">
+            <el-form-item label="播放时长" prop="times">
+              <el-select
+                clearable
+                v-model="ruleForm.times"
+                placeholder="请选择播放时长"
+              >
+                <el-option label="5秒" value="1"></el-option>
+                <el-option label="10秒" value="2"></el-option>
+                <el-option label="15秒" value="3"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
         </el-row>
       </el-form>
 
@@ -85,6 +98,7 @@ export default {
         ad_details: "",
         ad_url: "",
         id: "",
+        times: "",
       },
       FormSearch: {},
       rules: {
@@ -94,6 +108,7 @@ export default {
         ad_details: [
           { required: true, message: "请输入广告描述", trigger: "blur" },
         ],
+        times: [{ required: true, message: "请选择播放时长", trigger: "blur" }],
         ad_url: [{ required: true, message: "请选择广告", trigger: "blur" }],
       },
     };
@@ -139,6 +154,7 @@ export default {
               ad_name: this.ruleForm.ad_name,
               ad_url: this.ruleForm.ad_url,
               ad_details: this.ruleForm.ad_details,
+              times: this.ruleForm.times,
             };
 
             advideoAdd(params).then((res) => {

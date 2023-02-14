@@ -17,7 +17,7 @@
       >
         <el-row :gutter="15">
           <el-col :span="24">
-            <el-form-item label="商品图片" prop="img">
+            <el-form-item label="商品图片" prop="imagesPath">
               <el-upload
                 class="avatar-uploader"
                 action="https://testboxapi.yujian02.xyz/api/common/ossUpload?file=file"
@@ -196,10 +196,12 @@ export default {
     change1(data) {
       console.log(data);
       this.name = data.name;
-      this.goodsId = data.goodsId;
+      this.goodsId = data.id;
       console.log(this.ruleForm);
       this.ruleForm.costPrice = data.costPrice;
       this.ruleForm.salePrice = data.salePrice;
+      this.ruleForm.imagesPath = data.imagesPath;
+      this.imagesPath = this.ruleForm.imagesPath;
     },
     typeList() {
       let params = {
@@ -232,27 +234,31 @@ export default {
     submitForm() {
       this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {
-          let params = {
-            name: this.name,
-            type_id: this.ruleForm.type_id,
-            goodsId: this.goodsId,
-            stock: this.ruleForm.stock,
-            stockMax: this.ruleForm.stockMax,
-            costPrice: this.ruleForm.costPrice,
-            imagesPath: this.ruleForm.imagesPath,
-            salePrice: this.ruleForm.salePrice,
-          };
-          let id = this.ruleForm.id;
-          stockEdit(params, id).then((res) => {
-            if (res.data.code == 200) {
-              this.$message.success("修改成功");
-            } else {
-              this.$message.error(res.data.msg);
-            }
-            this.close();
-            this.isDisable = false;
-            this.$parent.getList();
-          });
+          if (this.ruleForm.stockMax >= this.ruleForm.stock) {
+            let params = {
+              name: this.name,
+              type_id: this.ruleForm.type_id,
+              goodsId: this.goodsId,
+              stock: this.ruleForm.stock,
+              stockMax: this.ruleForm.stockMax,
+              costPrice: this.ruleForm.costPrice,
+              imagesPath: this.ruleForm.imagesPath,
+              salePrice: this.ruleForm.salePrice,
+            };
+            let id = this.ruleForm.id;
+            stockEdit(params, id).then((res) => {
+              if (res.data.code == 200) {
+                this.$message.success("修改成功");
+              } else {
+                this.$message.error(res.data.msg);
+              }
+              this.close();
+              this.isDisable = false;
+              this.$parent.getList();
+            });
+          } else {
+            this.$message.error("库存不应大于容量");
+          }
         } else {
           return false;
         }

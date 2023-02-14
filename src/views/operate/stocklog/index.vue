@@ -2,13 +2,32 @@
   <div>
     <div class="topserch">
       <el-form :inline="true">
-        <el-form-item label="模板名称">
+        <el-form-item label="商品名称">
           <el-input
             style="width: 180px"
-            v-model="temname"
+            v-model="name"
             clearable
-            placeholder="请输入模板名称"
+            placeholder="请输入商品名称"
           ></el-input>
+        </el-form-item>
+        <el-form-item label="设备编号">
+          <el-input
+            style="width: 180px"
+            v-model="deviceCode"
+            clearable
+            placeholder="请输入设备编号"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="时间">
+          <el-date-picker
+            v-model="time"
+            type="daterange"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          >
+          </el-date-picker>
         </el-form-item>
         <el-form-item style="float: right">
           <el-button type="primary" icon="el-icon-search" @click="searchData"
@@ -23,7 +42,7 @@
         class="tab-bar"
         :data="list"
         border
-        stripe
+        stripeqq
         @selection-change="getSelection"
       >
         <el-table-column
@@ -33,31 +52,18 @@
           width="50"
         >
         </el-table-column>
-        <el-table-column prop="id" label="id" align="center"> </el-table-column>
-
-        <el-table-column prop="deviceName" label="设备名称" align="center">
-        </el-table-column>
         <el-table-column prop="deviceCode" label="设备编号" align="center">
         </el-table-column>
-        <el-table-column label="状态" align="center">
+        <el-table-column label="商品图片" align="center">
           <template slot-scope="scope">
-            <el-link type="success" v-if="scope.row.status == 1">启用</el-link>
-            <el-link type="danger" v-if="scope.row.status == 2">禁用</el-link>
+            <img :src="scope.row.imagesPath" class="table-img" width="60px" />
           </template>
         </el-table-column>
-
-        <el-table-column prop="created_at" label="创建日期" align="center">
+        <el-table-column prop="name" label="商品名称" align="center">
         </el-table-column>
-        <el-table-column label="操作" align="center" width="350">
-          <template slot-scope="scope">
-            <el-link
-              type="warning"
-              @click="showData(scope.row)"
-              :underline="false"
-              style="margin-left: 10px"
-              >查看详情</el-link
-            >
-          </template>
+        <el-table-column prop="stockNum" label="补货数量" align="center">
+        </el-table-column>
+        <el-table-column prop="created_at" label="时间" align="center">
         </el-table-column>
       </el-table>
       <el-pagination
@@ -70,23 +76,20 @@
         :total="page.total"
       >
       </el-pagination>
-      <add-data ref="addData" />
     </div>
   </div>
 </template>
 
 <script>
-import { deviceList } from "@/request/api";
-import addData from "./components/addData.vue";
+import { stocklog } from "@/request/api";
 
 export default {
-  components: {
-    addData,
-  },
+  components: {},
   data() {
     return {
-      temname: "",
-      sta: "",
+      name: "",
+      deviceCode: "",
+      time: "",
       page: {
         //分页信息
         currentPage: 1, //当前页
@@ -95,6 +98,13 @@ export default {
       },
       list: [],
     };
+  },
+  watch: {
+    time(newVal) {
+      if (newVal == null) {
+        this.time = [];
+      }
+    },
   },
   created() {
     this.getList();
@@ -114,9 +124,12 @@ export default {
       let params = {
         page: this.page.currentPage,
         limit: this.page.pageSize,
-        status: this.status,
+        name: this.name,
+        deviceCode: this.deviceCode,
+        created_at_start: this.time[0],
+        created_at_end: this.time[1],
       };
-      deviceList(params).then((res) => {
+      stocklog(params).then((res) => {
         console.log(res.data.data);
         this.page.total = res.data.data.total;
         this.list = res.data.data.list;
@@ -126,22 +139,18 @@ export default {
       let params = {
         page: 1,
         limit: this.page.pageSize,
-        status: this.status,
+        name: this.name,
+        deviceCode: this.deviceCode,
+        created_at_start: this.time[0],
+        created_at_end: this.time[1],
       };
-      deviceList(params).then((res) => {
+      stocklog(params).then((res) => {
         console.log(res.data.data);
         this.page.total = res.data.data.total;
         this.list = res.data.data.list;
       });
     },
-    //利用type区分增加还是修改
-    addData(type) {
-      this.$refs.addData.show(1, {});
-    },
-    searchData() {},
-    showData(item) {
-      this.$refs.addData.show(JSON.parse(JSON.stringify(item)));
-    },
+
     getSelection(select) {
       var ids = select.map((i) => i.id).toString();
       console.log(ids);
@@ -151,33 +160,4 @@ export default {
 </script>
 
 <style scoped>
-.time {
-  font-size: 13px;
-  color: #999;
-}
-
-.bottom {
-  margin-top: 13px;
-  line-height: 12px;
-}
-
-.button {
-  padding: 0;
-  float: right;
-}
-
-.image {
-  width: 280px;
-  display: block;
-}
-
-.clearfix:before,
-.clearfix:after {
-  display: table;
-  content: "";
-}
-
-.clearfix:after {
-  clear: both;
-}
 </style>

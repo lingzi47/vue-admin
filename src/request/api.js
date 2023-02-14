@@ -151,7 +151,7 @@ export const deviceDel = (id) => request.delete('/deviceAdmin/device' + "/" + id
     id
 })
 //详情
-export const deviceStock = (params, id) => request.get('/deviceAdmin/deviceStock', {
+export const deviceStock = (params) => request.get('/deviceAdmin/deviceStock', {
     params
 })
 //修改
@@ -159,3 +159,40 @@ export const stockEdit = (params, id) => request.put('/deviceAdmin/deviceStock' 
     params,
     id
 )
+//整机//货道
+export const fillup = (params) => request.post('/deviceAdmin/fillup',
+    params
+)
+//设为模板
+export const frame = (params) => request.post('/deviceAdmin/frame',
+    params
+)
+//模板管理
+export const framelist = (params) => request.get('/deviceAdmin/frame',
+    params
+)
+//删除
+export const frameDel = (id) => request.delete('/deviceAdmin/frame' + "/" + id, {
+    id
+})
+//模板 详情
+export const frameInfo = (params) => request.get('/deviceAdmin/frameInfo', {
+    params
+})
+//修改
+export const frameInfoEdit = (params, id) => request.put('/deviceAdmin/frameInfo' + "/" + id,
+    params,
+    id
+)
+//使用模板
+export const useFrame = (params) => request.post('/deviceAdmin/useFrame',
+    params
+)
+//订单列表
+export const goodsOrder = (params) => request.get('/deviceAdmin/goodsOrder', {
+    params
+})
+//统计列表
+export const stocklog = (params) => request.get('/deviceAdmin/stocklog', {
+    params
+})

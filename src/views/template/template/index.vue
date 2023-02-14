@@ -14,7 +14,6 @@
           <el-button type="primary" icon="el-icon-search" @click="searchData"
             >搜索</el-button
           >
-          <el-button type="primary" icon="el-icon-plus">删除</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -33,37 +32,38 @@
           width="50"
         >
         </el-table-column>
-        <el-table-column label="序号" align="center">
-          <template slot-scope="scope">
-            <span>{{
-              (page.currentPage - 1) * page.pageSize + scope.$index + 1
-            }}</span>
-          </template>
+        <el-table-column prop="id" label="id" align="center"> </el-table-column>
+        <el-table-column prop="name" label="模板名称" align="center">
         </el-table-column>
-        <el-table-column prop="temname" label="商品品类" align="center">
+        <el-table-column prop="typeAll" label="商品品类" align="center">
         </el-table-column>
-        <el-table-column prop="goodstype" label="商品品类" align="center">
+        <el-table-column prop="goodsAll" label="商品数量" align="center">
         </el-table-column>
-        <el-table-column prop="num" label="商品数量" align="center">
+        <el-table-column prop="salePrice" label="总价格" align="center">
         </el-table-column>
-        <el-table-column prop="sort" label="总价格" align="center">
+        <el-table-column prop="costPrice" label="总成本" align="center">
         </el-table-column>
-        <el-table-column prop="sort" label="总成本" align="center">
+        <el-table-column prop="profitPrice" label="总毛利" align="center">
         </el-table-column>
-        <el-table-column prop="sort" label="总毛利" align="center">
+        <el-table-column prop="stock" label="总库存" align="center">
         </el-table-column>
-        <el-table-column prop="sort" label="总库存" align="center">
-        </el-table-column>
-        <el-table-column prop="sort" label="总容量" align="center">
+        <el-table-column prop="stockMax" label="总容量" align="center">
         </el-table-column>
 
-        <el-table-column prop="des" label="备注" align="center">
+        <el-table-column prop="remarks" label="备注" align="center">
         </el-table-column>
 
-        <el-table-column prop="createtime" label="创建日期" align="center">
+        <el-table-column prop="created_at" label="创建日期" align="center">
         </el-table-column>
         <el-table-column label="操作" align="center" width="350">
           <template slot-scope="scope">
+            <el-link
+              type="danger"
+              :underline="false"
+              style="margin-left: 10px"
+              @click="deleteData(scope.row)"
+              >删除</el-link
+            >
             <el-link
               type="warning"
               @click="showData(scope.row)"
@@ -91,6 +91,7 @@
 
 <script>
 import addData from "./components/addData.vue";
+import { framelist, frameDel } from "@/request/api";
 export default {
   components: {
     addData,
@@ -105,26 +106,32 @@ export default {
         pageSize: 10, //每页条数
         total: 0, //总条数
       },
-      list: [
-        {
-          temname: "模板",
-          goodstype: "默认",
-          num: "1",
-          sort: "排序",
-          sta: "20",
-          des: "品类详情",
-          createtime: "创建时间",
-          id: "1",
-        },
-      ],
+      list: [],
     };
   },
+  created() {
+    this.getList();
+  },
   methods: {
+    getList() {
+      let params = {
+        page: this.page.currentPage,
+        limit: this.page.pageSize,
+      };
+      framelist(params).then((res) => {
+        this.page.total = res.data.data.total;
+        this.list = res.data.data.list;
+      });
+    },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
+      this.page.pageSize = val;
+      this.getList();
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
+      this.page.currentPage = val;
+      this.getList();
     },
     //利用type区分增加还是修改
     addData(type) {
@@ -138,23 +145,20 @@ export default {
       var ids = select.map((i) => i.id).toString();
       console.log(ids);
     },
-    deleteData(id) {
+    deleteData(row) {
+      let id = row.id;
       this.$confirm("是否删除此信息？", "提示", {
         type: "warning",
       })
         .then(async () => {
-          // let params = {
-          //   token: sessionStorage.getItem("token"),
-          //   id: id,
-          // };
-          // goodschoosedel(params).then((res) => {
-          //   if (res.data.code == 200) {
-          //     this.getUserList();
-          //     this.$message.success("删除成功");
-          //   } else {
-          //     this.$message.error(res.data.msg);
-          //   }
-          // });
+          frameDel(id).then((res) => {
+            if (res.data.code == 200) {
+              this.$message.success("删除成功");
+            } else {
+              this.$message.error(res.data.msg);
+            }
+            this.getList();
+          });
         })
         .catch(() => {});
     },

@@ -41,13 +41,7 @@
           width="50"
         >
         </el-table-column>
-        <el-table-column label="序号" align="center">
-          <template slot-scope="scope">
-            <span>{{
-              (page.currentPage - 1) * page.pageSize + scope.$index + 1
-            }}</span>
-          </template>
-        </el-table-column>
+        <el-table-column prop="id" label="id" align="center"> </el-table-column>
 
         <el-table-column prop="deviceName" label="设备名称" align="center">
         </el-table-column>

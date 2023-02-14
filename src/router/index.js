@@ -78,6 +78,20 @@ export default new Router({
                     }
                 },
                 {
+                    path: '/stocklog',
+                    component: resolve => require(['../views/operate/stocklog/index.vue'], resolve),
+                    meta: {
+                        title: '补货统计'
+                    }
+                },
+                {
+                    path: '/goodsorder',
+                    component: resolve => require(['../views/order/goodsorder/index.vue'], resolve),
+                    meta: {
+                        title: '订单列表'
+                    }
+                },
+                {
                     path: '/icon',
                     component: resolve => require(['../components/page/Icon.vue'], resolve),
                     meta: {

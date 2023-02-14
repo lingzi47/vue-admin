@@ -41,37 +41,43 @@
             width="50"
           >
           </el-table-column>
-          <el-table-column label="序号" align="center">
+          <el-table-column label="货道编号" align="center">
             <template slot-scope="scope">
-              <span>{{
-                (page.currentPage - 1) * page.pageSize + scope.$index + 1
-              }}</span>
+              <span>{{ scope.row.row }}/{{ scope.row.column }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="temname" label="货道编号" align="center">
+          <el-table-column prop="goodsId" label="商品ID" align="center">
           </el-table-column>
-          <el-table-column prop="goodstype" label="品类名称" align="center">
+          <el-table-column label="商品图片" align="center">
+            <template slot-scope="scope">
+              <img :src="scope.row.imagesPath" class="table-img" width="60px" />
+            </template>
           </el-table-column>
-          <el-table-column prop="num" label="商品图片" align="center">
+          <el-table-column prop="name" label="商品名称" align="center">
           </el-table-column>
-          <el-table-column prop="sort" label="商品名称" align="center">
-          </el-table-column>
-          <el-table-column prop="sort" label="价格" align="center">
-          </el-table-column>
-          <el-table-column prop="sort" label="成本" align="center">
-          </el-table-column>
-          <el-table-column prop="sort" label="库存" align="center">
-          </el-table-column>
-          <el-table-column prop="sort" label="容量" align="center">
+          <el-table-column prop="salePrice" label="销售价格" align="center">
           </el-table-column>
 
-          <el-table-column prop="des" label="规格" align="center">
-          </el-table-column>
-          <el-table-column prop="des" label="箱规" align="center">
+          <el-table-column prop="costPrice" label="成本价格" align="center">
           </el-table-column>
 
-          <el-table-column prop="createtime" label="保质期" align="center">
+          <el-table-column prop="stock" label="库存" align="center">
           </el-table-column>
+          <el-table-column prop="stockMax" label="容量" align="center">
+          </el-table-column>
+          <!-- 
+          <el-table-column label="禁用/启用" :resizable="false" align="center">
+            <template slot-scope="scope">
+              <el-switch
+                v-model="scope.row.status"
+                :active-value="1"
+                :inactive-value="2"
+                active-color="#02538C"
+                inactive-color="#B9B9B9"
+                @change="change(scope.row)"
+              />
+            </template>
+          </el-table-column> -->
           <el-table-column label="操作" align="center" width="148">
             <template slot-scope="scope">
               <el-link
@@ -97,7 +103,6 @@
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitForm">确 定</el-button>
       </div>
     </el-dialog>
     <edit-data ref="editData" />
@@ -105,9 +110,10 @@
 </template>
 
 <script>
-import {} from "@/request/api";
+import { frameInfo } from "@/request/api";
 
 import editData from "./editData.vue";
+
 export default {
   name: "AddDialog",
   components: {
@@ -117,6 +123,8 @@ export default {
     return {
       temname: "",
       sta: "",
+      ids: "",
+      deviceId: "",
       dialogVisible: false,
       page: {
         //分页信息
@@ -124,18 +132,7 @@ export default {
         pageSize: 10, //每页条数
         total: 0, //总条数
       },
-      list: [
-        {
-          temname: "模板",
-          goodstype: "默认",
-          num: "1",
-          sort: "排序",
-          sta: "20",
-          des: "品类详情",
-          createtime: "创建时间",
-          id: "1",
-        },
-      ],
+      list: [],
     };
   },
   watch: {},
@@ -144,54 +141,77 @@ export default {
   },
   mounted() {},
   methods: {
+    settemplate() {
+      let id = this.deviceId;
+      this.$refs.setTemplate.show(JSON.parse(JSON.stringify(id)));
+    },
+
     show(item) {
       console.log(item);
       this.dialogVisible = true;
+      this.deviceId = item.id;
+      this.getList();
+    },
+    getList() {
+      let params = {
+        page: this.page.currentPage,
+        limit: this.page.pageSize,
+        frameId: this.deviceId,
+      };
+      frameInfo(params).then((res) => {
+        console.log(res.data.data);
+        this.page.total = res.data.data.total;
+        this.list = res.data.data.list;
+      });
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
+      this.page.pageSize = val;
+      this.getList();
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
+      this.page.currentPage = val;
+      this.getList();
     },
-
+    bind(row) {
+      let params = {
+        status: 1,
+      };
+      let id = row.id;
+      frameInfoEdit(params, id).then((res) => {
+        if (res.data.code == 200) {
+          this.$message.success("启用成功");
+        } else {
+          this.$message.error(res.data.msg);
+        }
+        this.getList();
+      });
+    },
+    unbind(row) {
+      let params = {
+        status: 2,
+      };
+      let id = row.id;
+      frameInfoEdit(params, id).then((res) => {
+        if (res.data.code == 200) {
+          this.$message.success("停用成功");
+        } else {
+          this.$message.error(res.data.msg);
+        }
+        this.getList();
+      });
+    },
     searchData() {},
     showData(item) {
       this.$refs.editData.show(JSON.parse(JSON.stringify(item)));
     },
     getSelection(select) {
-      var ids = select.map((i) => i.id).toString();
-      console.log(ids);
+      this.ids = select.map((i) => i.id).toString();
     },
     close() {
       this.dialogVisible = false;
-    },
-
-    submitForm() {
-      this.$refs.ruleForm.validate(async (valid) => {
-        if (valid) {
-          let params = {
-            name: this.ruleForm.name,
-            des: this.ruleForm.des,
-            img: this.ruleForm.img,
-          };
-          unrealOrderAdd(params).then((res) => {
-            if (res.data.code == 200) {
-              this.$message.success("新增成功");
-              this.$parent.getUserList();
-              this.close();
-              this.isDisable = false;
-            } else {
-              this.$message.error(res.data.msg);
-              this.$parent.getUserList();
-              this.close();
-              this.isDisable = false;
-            }
-          });
-        } else {
-          return false;
-        }
-      });
+      this.list = [];
     },
   },
 };

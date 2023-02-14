@@ -131,6 +131,21 @@ export default {
               index: "replenishment",
               title: "补货设置",
             },
+            {
+              index: "stocklog",
+              title: "补货统计",
+            },
+          ],
+        },
+        {
+          icon: "el-icon-lx-copy",
+          index: "7",
+          title: "订单管理",
+          subs: [
+            {
+              index: "goodsorder",
+              title: "订单列表",
+            },
           ],
         },
         {

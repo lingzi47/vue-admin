@@ -23,6 +23,10 @@
             <el-button type="primary" icon="el-icon-search" @click="searchData"
               >搜索</el-button
             >
+            <el-button type="primary" @click="Machine">整机补满</el-button>
+            <el-button type="primary" @click="Cargolanes">货道补满</el-button>
+            <el-button type="primary" @click="settemplate">设为模板</el-button>
+            <el-button type="primary" @click="usetemplate">使用模板</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -66,9 +70,21 @@
           <el-table-column prop="stockMax" label="容量" align="center">
           </el-table-column>
 
+          <el-table-column label="禁用/启用" :resizable="false" align="center">
+            <template slot-scope="scope">
+              <el-switch
+                v-model="scope.row.status"
+                :active-value="1"
+                :inactive-value="2"
+                active-color="#02538C"
+                inactive-color="#B9B9B9"
+                @change="change(scope.row)"
+              />
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" width="148">
             <template slot-scope="scope">
-              <el-link
+              <!-- <el-link
                 type="info"
                 v-if="scope.row.status == 1"
                 :underline="false"
@@ -83,7 +99,7 @@
                 style="margin-left: 10px"
                 @click="bind(scope.row)"
                 >启用</el-link
-              >
+              > -->
               <el-link
                 type="warning"
                 @click="showData(scope.row)"
@@ -111,23 +127,31 @@
       </div>
     </el-dialog>
     <edit-data ref="editData" />
+    <set-template ref="setTemplate" />
+    <use-template ref="useTemplate" />
   </div>
 </template>
 
 <script>
-import { deviceStock, stockEdit } from "@/request/api";
+import { deviceStock, stockEdit, fillup } from "@/request/api";
 
 import editData from "./editData.vue";
+import setTemplate from "./setTemplate.vue";
+import useTemplate from "./useTemplate.vue";
 export default {
   name: "AddDialog",
   components: {
     editData,
+    setTemplate,
+    useTemplate,
   },
   data() {
     return {
       temname: "",
       sta: "",
-      deviceStock: "",
+      item: {},
+      ids: "",
+      deviceId: "",
       dialogVisible: false,
       page: {
         //分页信息
@@ -144,17 +168,41 @@ export default {
   },
   mounted() {},
   methods: {
+    settemplate() {
+      let id = this.deviceId;
+      this.$refs.setTemplate.show(JSON.parse(JSON.stringify(id)));
+    },
+    usetemplate() {
+      let item = this.item;
+
+      this.$refs.useTemplate.show(JSON.parse(JSON.stringify(item)));
+    },
+    change(row) {
+      let params = {
+        status: row.status,
+      };
+      let id = row.id;
+      stockEdit(params, id).then((res) => {
+        if (res.data.code == 200) {
+          this.$message.success("修改成功");
+        } else {
+          this.$message.error(res.data.msg);
+        }
+        this.getList();
+      });
+    },
     show(item) {
       console.log(item);
+      this.item = item;
       this.dialogVisible = true;
-      this.deviceStock = item.id;
+      this.deviceId = item.id;
       this.getList();
     },
     getList() {
       let params = {
         page: this.page.currentPage,
         limit: this.page.pageSize,
-        deviceStock: this.deviceStock,
+        deviceId: this.deviceId,
       };
       deviceStock(params).then((res) => {
         console.log(res.data.data);
@@ -205,13 +253,42 @@ export default {
       this.$refs.editData.show(JSON.parse(JSON.stringify(item)));
     },
     getSelection(select) {
-      var ids = select.map((i) => i.id).toString();
-      console.log(ids);
+      this.ids = select.map((i) => i.id).toString();
     },
     close() {
       this.dialogVisible = false;
+      this.list = [];
     },
-
+    Machine() {
+      let params = {
+        deviceId: this.deviceId,
+        chooseId: "",
+      };
+      fillup(params).then((res) => {
+        if (res.data.code == 200) {
+          this.$message.success("整机补货成功");
+          this.getList();
+        } else {
+          this.$message.error(res.data.msg);
+          this.getList();
+        }
+      });
+    },
+    Cargolanes() {
+      let params = {
+        deviceId: this.deviceId,
+        chooseId: this.ids,
+      };
+      fillup(params).then((res) => {
+        if (res.data.code == 200) {
+          this.$message.success("整机补货成功");
+          this.getList();
+        } else {
+          this.$message.error(res.data.msg);
+          this.getList();
+        }
+      });
+    },
     submitForm() {
       this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {

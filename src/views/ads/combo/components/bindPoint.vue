@@ -103,12 +103,14 @@
               <el-link
                 type="info"
                 :underline="false"
+                v-if="scope.row.is_bind == 1"
                 style="margin-left: 10px"
                 @click="unbind(scope.row)"
                 >解绑</el-link
               >
               <el-link
                 type="success"
+                v-if="scope.row.is_bind == 2"
                 :underline="false"
                 style="margin-left: 10px"
                 @click="bind(scope.row)"
@@ -193,6 +195,7 @@ export default {
       let params = {
         page: this.page.currentPage,
         limit: this.page.pageSize,
+        g_id: this.g_id,
       };
       adDev(params).then((res) => {
         this.page.total = res.data.total;
@@ -202,7 +205,8 @@ export default {
     searchData() {
       let params = {
         page: 1,
-        limit: 10,
+        limit: this.page.pageSize,
+        g_id: this.g_id,
       };
       adDev(params).then((res) => {
         this.page.total = res.data.total;

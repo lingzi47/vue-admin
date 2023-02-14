@@ -84,7 +84,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="商品图片" prop="img">
+            <el-form-item label="商品图片" prop="imagesPath">
               <el-upload
                 class="avatar-uploader"
                 action="https://testboxapi.yujian02.xyz/api/common/ossUpload?file=file"
