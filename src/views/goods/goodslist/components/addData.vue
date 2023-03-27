@@ -166,10 +166,10 @@ export default {
       let params = {
         page: 1,
         limit: 100,
+        status: 1,
       };
       typeList(params).then((res) => {
         console.log(res.data.data);
-
         this.arr = res.data.data.list;
       });
     },

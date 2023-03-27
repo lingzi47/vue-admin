@@ -35,8 +35,8 @@
         <el-table-column prop="id" label="id" align="center"> </el-table-column>
         <el-table-column prop="name" label="模板名称" align="center">
         </el-table-column>
-        <el-table-column prop="typeAll" label="商品品类" align="center">
-        </el-table-column>
+        <!-- <el-table-column prop="typeAll" label="商品品类" align="center">
+        </el-table-column> -->
         <el-table-column prop="goodsAll" label="商品数量" align="center">
         </el-table-column>
         <el-table-column prop="salePrice" label="总价格" align="center">

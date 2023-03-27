@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-dialog
+      v-loading="loading"
       class="AddDialog"
       title="设置模板"
       :visible.sync="dialogVisible"
@@ -34,7 +35,7 @@
               ></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <!-- <el-col :span="12">
             <el-form-item label="启用状态" prop="status">
               <el-select
                 clearable
@@ -46,7 +47,7 @@
                 <el-option label="禁用" value="2"></el-option>
               </el-select>
             </el-form-item>
-          </el-col>
+          </el-col> -->
         </el-row>
       </el-form>
 
@@ -69,10 +70,11 @@ export default {
       dialogVisible: false,
       ruleForm: {
         name: "",
-        status: "",
+        // status: "",
         remarks: "",
         deviceId: "",
       },
+      loading: false,
       FormSearch: {},
       rules: {
         name: [{ required: true, message: "请输入模板名称", trigger: "blur" }],
@@ -108,20 +110,31 @@ export default {
           let params = {
             name: this.name,
             name: this.ruleForm.name,
-            status: this.ruleForm.status,
+            // status: this.ruleForm.status,
             remarks: this.ruleForm.remarks,
             deviceId: this.ruleForm.deviceId,
           };
 
           frame(params).then((res) => {
             if (res.data.code == 200) {
+              this.loading = true;
+              setTimeout(() => {
+                this.loading = false;
+                this.close();
+                this.isDisable = false;
+                this.$parent.getList();
+              }, 1500);
               this.$message.success(res.data.msg);
             } else {
+              this.loading = true;
+              setTimeout(() => {
+                this.loading = false;
+                this.close();
+                this.isDisable = false;
+                this.$parent.getList();
+              }, 1500);
               this.$message.error(res.data.msg);
             }
-            this.close();
-            this.isDisable = false;
-            this.$parent.getList();
           });
         } else {
           return false;

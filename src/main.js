@@ -24,12 +24,12 @@ router.beforeEach((to, from, next) => {
 
 
     if (role) {
-        console.log(role);
+      
         if (to.path == '/login') {
             next({
                 path: '/'
             })
-            console.log(role);
+         
         }
     }
     if (!role && to.path !== '/login') {

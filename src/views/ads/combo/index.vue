@@ -57,6 +57,8 @@
         </el-table-column>
         <el-table-column prop="ad_count" label="广告数量" align="center">
         </el-table-column>
+        <el-table-column prop="dev_count" label="设备数量" align="center">
+        </el-table-column>
         <el-table-column prop="remark" label="备注" align="center">
         </el-table-column>
         <el-table-column prop="created_at" label="创建日期" align="center">

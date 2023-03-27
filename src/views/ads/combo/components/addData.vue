@@ -175,15 +175,21 @@ export default {
     },
     ids() {
       let ids = [];
+
       this.list.map((item) => {
         if (item.flag === true) {
-          ids.push(item.ad_name);
+          console.log(item);
+          ids.push(item.id);
         }
       });
       return ids;
     },
   },
-  watch: {},
+  watch: {
+    ids(value) {
+      console.log(this.ids);
+    },
+  },
   created() {
     //深拷贝 复制表单初始值也就是所有元素为空的时候
     this.FormSearch = JSON.parse(JSON.stringify(this.ruleForm));
@@ -192,16 +198,11 @@ export default {
   methods: {
     show(type, item) {
       this.type = type;
-      console.log(item);
       this.dialogVisible = true;
       this.ruleForm = item;
       if (this.type == 2) {
         this.ad_id = item.ad_id.split(",");
-      } else {
-        this.ad_id = [];
       }
-
-      console.log(this.ad_id);
       this.getList();
     },
     getList() {
@@ -214,7 +215,6 @@ export default {
         Authorization: "Bearer " + localStorage.getItem("token"),
       };
       adList(params, headers).then((res) => {
-        console.log(res.data.data);
         this.page.total = res.data.data.total;
         let list = res.data.data.list;
         list.forEach((value, index) => {
@@ -222,13 +222,12 @@ export default {
         });
         for (let i = 0; i < list.length; i++) {
           for (let j = 0; j < this.ad_id.length; j++) {
-            if (list[i].ad_name == this.ad_id[j]) {
+            if (list[i].id == this.ad_id[j]) {
               list[i].flag = true;
             }
           }
         }
         this.list = list;
-        console.log(this.list);
       });
     },
     searchData() {
@@ -244,7 +243,6 @@ export default {
           value["flag"] = false;
         });
         this.list = list;
-        console.log(this.list);
       });
     },
     handleSizeChange(val) {
@@ -261,6 +259,7 @@ export default {
       this.dialogVisible = false;
       //清空时,反向深拷贝
       this.ruleForm = JSON.parse(JSON.stringify(this.FormSearch));
+      this.ad_name = "";
       this.list = [];
     },
 
@@ -268,6 +267,10 @@ export default {
       this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {
           console.log(this.ids);
+          if (this.ids == "") {
+            this.$message.error("请选择至少一个广告");
+            return;
+          }
           if (this.type == 1) {
             let params = {
               name: this.ruleForm.name,
@@ -295,7 +298,6 @@ export default {
             };
 
             let id = this.ruleForm.id;
-            console.log(id);
             adgroupEdit(params, id).then((res) => {
               if (res.data.code == 200) {
                 this.$message.success("修改成功");

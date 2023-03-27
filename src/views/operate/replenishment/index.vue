@@ -14,7 +14,6 @@
           <el-button type="primary" icon="el-icon-search" @click="searchData"
             >搜索</el-button
           >
-          <el-button type="primary" icon="el-icon-plus">删除</el-button>
         </el-form-item>
       </el-form>
     </div>

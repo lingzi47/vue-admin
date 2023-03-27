@@ -60,15 +60,11 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="播放时长" prop="times">
-              <el-select
-                clearable
+              <el-input
                 v-model="ruleForm.times"
-                placeholder="请选择播放时长"
-              >
-                <el-option label="5秒" value="1"></el-option>
-                <el-option label="10秒" value="2"></el-option>
-                <el-option label="15秒" value="3"></el-option>
-              </el-select>
+                style="width: 180px"
+                placeholder="请输入播放时长"
+              ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -134,11 +130,14 @@ export default {
     },
     //格式判断
     beforeAvatarUpload(file) {
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      if (!isLt2M) {
-        this.$message.error("上传图片大小不能超过 2MB!");
+      console.log(file.type);
+      const MP4 = file.type === "video/mp4";
+      if (!MP4) {
+        this.$message.error("视频格式应为mp4!");
+        this.ad_url = "";
+        this.ruleForm.ad_url = "";
       }
-      return isLt2M;
+      return MP4;
     },
     close() {
       this.dialogVisible = false;
@@ -156,7 +155,6 @@ export default {
               ad_details: this.ruleForm.ad_details,
               times: this.ruleForm.times,
             };
-
             advideoAdd(params).then((res) => {
               if (res.data.code == 200) {
                 this.$message.success("新增成功");
@@ -172,6 +170,7 @@ export default {
               ad_name: this.ruleForm.ad_name,
               ad_url: this.ruleForm.ad_url,
               ad_details: this.ruleForm.ad_details,
+              times: this.ruleForm.times,
             };
 
             let id = this.ruleForm.id;

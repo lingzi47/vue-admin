@@ -33,7 +33,6 @@
           <el-button type="primary" icon="el-icon-search" @click="searchData"
             >搜索</el-button
           >
-          <el-button type="primary" icon="el-icon-plus">删除</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -54,31 +53,32 @@
         </el-table-column>
         <el-table-column prop="orderCode" label="订单编号" align="center">
         </el-table-column>
-        <el-table-column prop="order_no" label="交易单号" align="center">
-        </el-table-column>
-        <el-table-column prop="orderCreateTime" label="创建时间" align="center">
-        </el-table-column>
+
         <el-table-column prop="orderDeviceCode" label="设备编号" align="center">
         </el-table-column>
         <el-table-column prop="orderDeviceName" label="设备名称" align="center">
         </el-table-column>
-        <el-table-column prop="stockId" label="货道编号" align="center">
+        <el-table-column prop="stockId" label="货道编号(行/列)" align="center">
+          <template slot-scope="scope">
+            <span
+              >{{ scope.row.stockId }}({{ scope.row.stockRow }} /
+              {{ scope.row.stockColumn }})</span
+            >
+          </template>
         </el-table-column>
-        <el-table-column prop="stockRow" label="行" align="center">
-        </el-table-column>
-        <el-table-column prop="stockColumn" label="列" align="center">
-        </el-table-column>
-        <el-table-column prop="goodsId" label="商品ID" align="center">
-        </el-table-column>
-        <el-table-column prop="goodsName" label="商品名称" align="center">
+
+        <el-table-column prop="goodsName" label="商品名称(id)" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.goodsName }}({{ scope.row.goodsId }})</span>
+          </template>
         </el-table-column>
         <el-table-column prop="goodsImg" label="商品图片" align="center">
           <template slot-scope="scope">
             <img :src="scope.row.goodsImg" class="table-img" width="60px" />
           </template>
         </el-table-column>
-        <el-table-column prop="goodsType" label="商品分类" align="center">
-        </el-table-column>
+        <!-- <el-table-column prop="goodsType" label="商品分类" align="center">
+        </el-table-column> -->
         <el-table-column prop="salePrice" label="销售价格" align="center">
         </el-table-column>
         <el-table-column prop="costPrice" label="成本价格" align="center">
@@ -98,7 +98,7 @@
             >
           </template>
         </el-table-column>
-        <el-table-column prop="orderStatus" label="订单状态" align="center">
+        <!-- <el-table-column prop="orderStatus" label="订单状态" align="center">
           <template slot-scope="scope">
             <el-link type="success" v-if="scope.row.orderStatus == 1"
               >正常</el-link
@@ -110,18 +110,47 @@
               >已取消</el-link
             >
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column prop="refundStatus" label="是否退款" align="center">
           <template slot-scope="scope">
             <el-link type="success" v-if="scope.row.refundStatus == 1"
-              >否</el-link
+              >否({{ scope.row.refundPrice }})</el-link
             >
             <el-link type="danger" v-if="scope.row.refundStatus == 2"
-              >是</el-link
+              >是({{ scope.row.refundPrice }})</el-link
             >
           </template>
         </el-table-column>
-        <el-table-column prop="refundPrice" label="退款金额" align="center">
+        <!-- <el-table-column prop="refundPrice" label="退款金额" align="center">
+        </el-table-column> -->
+        <el-table-column prop="orderCreateTime" label="创建时间" align="center">
+        </el-table-column>
+        <el-table-column label="出库状态(记录)" align="center">
+          <template slot-scope="scope">
+            <el-link v-if="scope.row.out_sta"
+              >{{ scope.row.out_sta }}({{ scope.row.out_log }})</el-link
+            >
+            <el-link v-else>无</el-link>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center">
+          <template slot-scope="scope">
+            <el-link
+              type="danger"
+              v-if="scope.row.payStatus == 2 && scope.row.refundStatus == 1"
+              :underline="false"
+              style="margin-left: 10px"
+              @click="deleteData(scope.row)"
+              >退款</el-link
+            >
+            <el-link
+              type="danger"
+              :underline="false"
+              style="margin-left: 10px"
+              v-if="scope.row.refundStatus == 2"
+              >退款完成</el-link
+            >
+          </template>
         </el-table-column>
       </el-table>
       <el-pagination
@@ -139,7 +168,7 @@
 </template>
 
 <script>
-import { goodsOrder } from "@/request/api";
+import { goodsOrder, refundRepeat } from "@/request/api";
 
 export default {
   components: {},
@@ -168,6 +197,27 @@ export default {
     this.getList();
   },
   methods: {
+    deleteData(row) {
+      console.log(row);
+
+      let params = {
+        id: row.id,
+      };
+      this.$confirm("是否退款？", "提示", {
+        type: "warning",
+      })
+        .then(async () => {
+          refundRepeat(params).then((res) => {
+            if (res.data.code == 200) {
+              this.$message.success("成功");
+            } else {
+              this.$message.error(res.data.msg);
+            }
+            this.getList();
+          });
+        })
+        .catch(() => {});
+    },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
       this.page.pageSize = val;

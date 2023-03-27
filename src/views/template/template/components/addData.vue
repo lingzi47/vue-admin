@@ -9,23 +9,6 @@
       :close-on-click-modal="false"
       @close="close"
     >
-      <div class="topserch">
-        <el-form :inline="true">
-          <el-form-item label="模板名称">
-            <el-input
-              style="width: 180px"
-              v-model="temname"
-              clearable
-              placeholder="请输入模板名称"
-            ></el-input>
-          </el-form-item>
-          <el-form-item style="float: right">
-            <el-button type="primary" icon="el-icon-search" @click="searchData"
-              >搜索</el-button
-            >
-          </el-form-item>
-        </el-form>
-      </div>
       <div class="page-content">
         <el-table
           class="tab-bar"
@@ -65,7 +48,7 @@
           </el-table-column>
           <el-table-column prop="stockMax" label="容量" align="center">
           </el-table-column>
-          <!-- 
+
           <el-table-column label="禁用/启用" :resizable="false" align="center">
             <template slot-scope="scope">
               <el-switch
@@ -77,7 +60,7 @@
                 @change="change(scope.row)"
               />
             </template>
-          </el-table-column> -->
+          </el-table-column>
           <el-table-column label="操作" align="center" width="148">
             <template slot-scope="scope">
               <el-link
@@ -110,7 +93,7 @@
 </template>
 
 <script>
-import { frameInfo } from "@/request/api";
+import { frameInfo, frameInfoEdit } from "@/request/api";
 
 import editData from "./editData.vue";
 
@@ -146,6 +129,20 @@ export default {
       this.$refs.setTemplate.show(JSON.parse(JSON.stringify(id)));
     },
 
+    change(row) {
+      let params = {
+        status: row.status,
+      };
+      let id = row.id;
+      frameInfoEdit(params, id).then((res) => {
+        if (res.data.code == 200) {
+          this.$message.success("修改成功");
+        } else {
+          this.$message.error(res.data.msg);
+        }
+        this.getList();
+      });
+    },
     show(item) {
       console.log(item);
       this.dialogVisible = true;

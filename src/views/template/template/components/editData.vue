@@ -16,22 +16,6 @@
         label-width="auto"
       >
         <el-row :gutter="15">
-          <el-col :span="24">
-            <el-form-item label="商品图片" prop="imagesPath">
-              <el-upload
-                class="avatar-uploader"
-                action="https://testboxapi.yujian02.xyz/api/common/ossUpload?file=file"
-                :show-file-list="false"
-                :on-success="handleAvatarSuccess"
-                :before-upload="beforeAvatarUpload"
-              >
-                <img v-if="imagesPath" :src="imagesPath" class="avatar" /><i
-                  v-else
-                  class="el-icon-plus avatar-uploader-icon"
-                ></i>
-              </el-upload>
-            </el-form-item>
-          </el-col>
           <el-col :span="12">
             <el-form-item label="品类名称" prop="type_id">
               <el-select
@@ -89,6 +73,16 @@
               ></el-input>
             </el-form-item>
           </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="库存" prop="stock">
+              <el-input
+                v-model="ruleForm.stock"
+                style="width: 180px"
+                placeholder="请输入库存"
+              ></el-input>
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
             <el-form-item label="容量" prop="stockMax">
               <el-input
@@ -98,13 +92,20 @@
               ></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="库存" prop="stock">
-              <el-input
-                v-model="ruleForm.stock"
-                style="width: 180px"
-                placeholder="请输入库存"
-              ></el-input>
+          <el-col :span="24">
+            <el-form-item label="商品图片" prop="imagesPath">
+              <el-upload
+                class="avatar-uploader"
+                action="https://testboxapi.yujian02.xyz/api/common/ossUpload?file=file"
+                :show-file-list="false"
+                :on-success="handleAvatarSuccess"
+                :before-upload="beforeAvatarUpload"
+              >
+                <img v-if="imagesPath" :src="imagesPath" class="avatar" /><i
+                  v-else
+                  class="el-icon-plus avatar-uploader-icon"
+                ></i>
+              </el-upload>
             </el-form-item>
           </el-col>
         </el-row>
@@ -177,16 +178,33 @@ export default {
       this.goodsId = row.goodsId;
       console.log(row.goodsId);
       this.typeList();
+      if (this.ruleForm.type_id == null) {
+      } else {
+        let params = {
+          type_id: this.ruleForm.type_id,
+          status: 1,
+          page: 1,
+          limit: 10000,
+        };
+        goodsList(params).then((res) => {
+          this.goods = res.data.data.list;
+          console.log(this.goods);
+        });
+      }
     },
     change(data) {
       console.log(data);
       this.ruleForm.name = "";
+      this.ruleForm.imagesPath = "";
       this.ruleForm.costPrice = "";
       this.ruleForm.salePrice = "";
       this.ruleForm.stockMax = "";
       this.ruleForm.stock = "";
       let params = {
         type_id: data,
+        status: 1,
+        page: 1,
+        limit: 10000,
       };
       goodsList(params).then((res) => {
         this.goods = res.data.data.list;
@@ -206,7 +224,8 @@ export default {
     typeList() {
       let params = {
         page: 1,
-        limit: 100,
+        limit: 10000,
+        status: 1,
       };
       typeList(params).then((res) => {
         console.log(res.data.data);
@@ -218,6 +237,7 @@ export default {
       this.dialogVisible = false;
       //清空时,反向深拷贝
       this.ruleForm = JSON.parse(JSON.stringify(this.FormSearch));
+      this.goods = [];
     },
     handleAvatarSuccess(res, file) {
       this.ruleForm.imagesPath = res;
@@ -232,9 +252,11 @@ export default {
       return isLt2M;
     },
     submitForm() {
+      console.log(this.ruleForm.stockMax, "容量");
+      console.log(this.ruleForm.stock, "库存");
       this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {
-          if (this.ruleForm.stockMax >= this.ruleForm.stock) {
+          if (Number(this.ruleForm.stockMax) >= Number(this.ruleForm.stock)) {
             let params = {
               name: this.name,
               type_id: this.ruleForm.type_id,
@@ -257,7 +279,7 @@ export default {
               this.$parent.getList();
             });
           } else {
-            this.$message.error("库存不应大于容量");
+            this.$message.error("库存应小于容量");
           }
         } else {
           return false;

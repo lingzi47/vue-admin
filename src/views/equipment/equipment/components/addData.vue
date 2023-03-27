@@ -1,38 +1,22 @@
 <template>
   <div>
-    <el-dialog
-      class="AddDialog"
-      :title="type == 1 ? '新增' : '编辑'"
-      :visible.sync="dialogVisible"
-      width="800px"
-      hegiht="1000px"
-      :close-on-click-modal="false"
-      @close="close"
-    >
-      <el-form
-        :model="ruleForm"
-        ref="ruleForm"
-        :rules="rules"
-        label-width="auto"
-      >
+    <el-dialog class="AddDialog" :title="type == 1 ? '新增' : '编辑'" :visible.sync="dialogVisible" width="800px"
+      hegiht="1000px" :close-on-click-modal="false" @close="close">
+      <el-form :model="ruleForm" ref="ruleForm" :rules="rules" label-width="auto">
         <el-row :gutter="15">
           <el-col :span="12">
             <el-form-item label="设备名称" prop="deviceName">
-              <el-input
-                v-model="ruleForm.deviceName"
-                style="width: 180px"
-                placeholder="请输入设备名称"
-              ></el-input>
+              <el-input v-model="ruleForm.deviceName" style="width: 180px" placeholder="请输入设备名称"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="iccid" prop="iccid">
+              <el-input v-model="ruleForm.iccid" style="width: 180px" placeholder="请输入iccid"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="状态" prop="status">
-              <el-select
-                clearable
-                v-model="ruleForm.status"
-                placeholder="请选择状态"
-                style="width: 180px"
-              >
+              <el-select clearable v-model="ruleForm.status" placeholder="请选择状态" style="width: 180px">
                 <el-option label="启用" :value="1"></el-option>
                 <el-option label="禁用" :value="2"></el-option>
               </el-select>
@@ -63,7 +47,7 @@ export default {
       dialogVisible: false,
       ruleForm: {
         deviceName: "",
-        status: "",
+        status: "", iccid: '',
         id: "",
       },
       FormSearch: {},
@@ -72,6 +56,7 @@ export default {
           { required: true, message: "请输入设备名称", trigger: "blur" },
         ],
         status: [{ required: true, message: "请选择状态", trigger: "blur" }],
+        iccid: [{ required: true, message: "请输入iccid", trigger: "blur" }],
       },
     };
   },
@@ -80,7 +65,7 @@ export default {
     //深拷贝 复制表单初始值也就是所有元素为空的时候
     this.FormSearch = JSON.parse(JSON.stringify(this.ruleForm));
   },
-  mounted() {},
+  mounted() { },
   methods: {
     show(type, item) {
       this.type = type;
@@ -101,6 +86,7 @@ export default {
             let params = {
               deviceName: this.ruleForm.deviceName,
               status: this.ruleForm.status,
+              iccid: this.ruleForm.iccid
             };
             deviceAdd(params).then((res) => {
               if (res.data.code == 200) {
@@ -116,6 +102,7 @@ export default {
             let params = {
               deviceName: this.ruleForm.deviceName,
               status: this.ruleForm.status,
+              iccid: this.ruleForm.iccid
             };
             let id = this.ruleForm.id;
             deviceEdit(params, id).then((res) => {

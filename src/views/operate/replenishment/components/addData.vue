@@ -32,6 +32,7 @@
       </div>
       <div class="page-content">
         <el-table
+          v-loading="loading"
           class="tab-bar"
           :data="list"
           border
@@ -73,6 +74,7 @@
           <el-table-column label="禁用/启用" :resizable="false" align="center">
             <template slot-scope="scope">
               <el-switch
+                v-if="scope.row.goodsId"
                 v-model="scope.row.status"
                 :active-value="1"
                 :inactive-value="2"
@@ -160,6 +162,7 @@ export default {
         total: 0, //总条数
       },
       list: [],
+      loading: false,
     };
   },
   watch: {},
@@ -266,9 +269,17 @@ export default {
       };
       fillup(params).then((res) => {
         if (res.data.code == 200) {
+          this.loading = true;
+          setTimeout(() => {
+            this.loading = false;
+          }, 1500);
           this.$message.success("整机补货成功");
           this.getList();
         } else {
+          this.loading = true;
+          setTimeout(() => {
+            this.loading = false;
+          }, 1500);
           this.$message.error(res.data.msg);
           this.getList();
         }
@@ -281,9 +292,17 @@ export default {
       };
       fillup(params).then((res) => {
         if (res.data.code == 200) {
+          this.loading = true;
+          setTimeout(() => {
+            this.loading = false;
+          }, 1500);
           this.$message.success("整机补货成功");
           this.getList();
         } else {
+          this.loading = true;
+          setTimeout(() => {
+            this.loading = false;
+          }, 1500);
           this.$message.error(res.data.msg);
           this.getList();
         }

@@ -27,7 +27,13 @@
         </el-form>
       </div>
       <div class="page-content">
-        <el-table class="tab-bar" :data="list" border stripe>
+        <el-table
+          class="tab-bar"
+          :data="list"
+          v-loading="loading"
+          border
+          stripe
+        >
           <el-table-column
             label="选中"
             type="selection"
@@ -71,6 +77,7 @@
             </template>
           </el-table-column>
         </el-table>
+
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -95,6 +102,7 @@ export default {
   data() {
     return {
       temname: "",
+      loading: false,
       sta: "",
       dialogVisible: false,
       page: {
@@ -153,13 +161,26 @@ export default {
       };
       useFrame(params).then((res) => {
         if (res.data.code == 200) {
+          this.loading = true;
+          console.log(this.loading);
+          setTimeout(() => {
+            this.loading = false;
+            console.log(this.loading);
+            this.close();
+            this.isDisable = false;
+            this.$parent.getList();
+          }, 1500);
           this.$message.success(res.data.msg);
         } else {
+          this.loading = true;
+          setTimeout(() => {
+            this.loading = false;
+            this.close();
+            this.isDisable = false;
+            this.$parent.getList();
+          }, 1500);
           this.$message.error(res.data.msg);
         }
-        this.close();
-        this.isDisable = false;
-        this.$parent.getList();
       });
     },
   },

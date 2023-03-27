@@ -25,11 +25,11 @@
       </el-form>
     </div>
     <div class="page-content">
-      <el-row>
+      <el-row :gutter="25">
         <el-col :span="4.5" v-for="(item, index) in list" :key="index">
           <el-card
             :body-style="{ padding: '0px' }"
-            style="margin-left: 10px; margin-bottom: 10px"
+            style="margin-left: 20px; margin-bottom: 10px"
           >
             <img :src="item.ad_url" class="image" />
             <div style="padding: 14px">
@@ -179,7 +179,7 @@ export default {
 }
 
 .image {
-  width: 310px;
+  width: 350px;
   height: 270px;
   display: block;
 }

@@ -45,6 +45,8 @@
 
         <el-table-column prop="deviceName" label="设备名称" align="center">
         </el-table-column>
+        <el-table-column prop="iccid" label="iccid" align="center">
+        </el-table-column>
         <el-table-column prop="deviceCode" label="设备编号" align="center">
         </el-table-column>
         <el-table-column label="状态" align="center">
@@ -73,6 +75,13 @@
               @click="deleteData(scope.row)"
               >删除</el-link
             >
+            <el-link
+              type="info"
+              :underline="false"
+              style="margin-left: 10px"
+              @click="showData(scope.row)"
+              >sim卡详情</el-link
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -87,16 +96,19 @@
       >
       </el-pagination>
       <add-data ref="addData" />
+      <show-data ref="showData" />
     </div>
   </div>
 </template>
 
 <script>
 import addData from "./components/addData.vue";
+import showData from "./components/showData.vue";
 import { deviceList, deviceDel } from "@/request/api";
 export default {
   components: {
     addData,
+    showData,
   },
   data() {
     return {
@@ -129,7 +141,9 @@ export default {
     addData(type) {
       this.$refs.addData.show(1, {});
     },
-
+    showData(row) {
+      this.$refs.showData.show(JSON.parse(JSON.stringify(row)));
+    },
     getList() {
       let params = {
         page: this.page.currentPage,

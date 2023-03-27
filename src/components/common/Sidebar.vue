@@ -83,6 +83,10 @@ export default {
               index: "combo",
               title: "广告组",
             },
+            {
+              index: "adsaccept",
+              title: "广告验收",
+            },
           ],
         },
         {
@@ -135,6 +139,30 @@ export default {
               index: "stocklog",
               title: "补货统计",
             },
+            {
+              index: "citylist",
+              title: "区域列表",
+            },
+            {
+              index: "estate",
+              title: "楼盘列表",
+            },
+            {
+              index: "buildings",
+              title: "楼栋列表",
+            },
+            {
+              index: "unitlist",
+              title: "单元列表",
+            },
+            {
+              index: "xcele",
+              title: "设备列表",
+            },
+            {
+              index: "pointlist",
+              title: "点位列表",
+            },
           ],
         },
         {
@@ -149,101 +177,120 @@ export default {
           ],
         },
         {
-          icon: "el-icon-lx-calendar",
-          index: "9",
-          title: "表单相关",
+          icon: "el-icon-lx-copy",
+          index: "8",
+          title: "用户管理",
           subs: [
             {
-              index: "form",
-              title: "基本表单",
+              index: "powerList",
+              title: "菜单管理",
             },
             {
-              index: "3-2",
-              title: "三级菜单",
-              subs: [
-                {
-                  index: "editor",
-                  title: "富文本编辑器",
-                },
-                {
-                  index: "markdown",
-                  title: "markdown编辑器",
-                },
-              ],
+              index: "userPower",
+              title: "角色组",
             },
             {
-              index: "upload",
-              title: "文件上传",
+              index: "userList",
+              title: "用户列表",
             },
           ],
         },
-        {
-          icon: "el-icon-lx-calendar",
-          index: "11",
-          title: "树形插件",
-          subs: [
-            {
-              index: "tree1",
-              title: "基本树",
-            },
-            {
-              index: "tree2",
-              title: "可选择树",
-            },
-            {
-              index: "tree3",
-              title: "可编辑树",
-            },
-            {
-              index: "tree4",
-              title: "可查询树",
-            },
-            {
-              index: "tree5",
-              title: "节点选择",
-            },
-          ],
-        },
-        {
-          icon: "el-icon-lx-emoji",
-          index: "icon",
-          title: "自定义图标",
-        },
-        {
-          icon: "el-icon-lx-favor",
-          index: "charts",
-          title: "schart图表",
-        },
-        {
-          icon: "el-icon-rank",
-          index: "12",
-          title: "拖拽组件",
-          subs: [
-            {
-              index: "drag",
-              title: "拖拽列表",
-            },
-            {
-              index: "dialog",
-              title: "拖拽弹框",
-            },
-          ],
-        },
-        {
-          icon: "el-icon-lx-warn",
-          index: "13",
-          title: "错误处理",
-          subs: [
-            {
-              index: "permission",
-              title: "权限测试",
-            },
-            {
-              index: "404",
-              title: "404页面",
-            },
-          ],
-        },
+        // {
+        //   icon: "el-icon-lx-calendar",
+        //   index: "9",
+        //   title: "表单相关",
+        //   subs: [
+        //     {
+        //       index: "form",
+        //       title: "基本表单",
+        //     },
+        //     {
+        //       index: "3-2",
+        //       title: "三级菜单",
+        //       subs: [
+        //         {
+        //           index: "editor",
+        //           title: "富文本编辑器",
+        //         },
+        //         {
+        //           index: "markdown",
+        //           title: "markdown编辑器",
+        //         },
+        //       ],
+        //     },
+        //     {
+        //       index: "upload",
+        //       title: "文件上传",
+        //     },
+        //   ],
+        // },
+        // {
+        //   icon: "el-icon-lx-calendar",
+        //   index: "11",
+        //   title: "树形插件",
+        //   subs: [
+        //     {
+        //       index: "tree1",
+        //       title: "基本树",
+        //     },
+        //     {
+        //       index: "tree2",
+        //       title: "可选择树",
+        //     },
+        //     {
+        //       index: "tree3",
+        //       title: "可编辑树",
+        //     },
+        //     {
+        //       index: "tree4",
+        //       title: "可查询树",
+        //     },
+        //     {
+        //       index: "tree5",
+        //       title: "节点选择",
+        //     },
+        //   ],
+        // },
+        // {
+        //   icon: "el-icon-lx-emoji",
+        //   index: "icon",
+        //   title: "自定义图标",
+        // },
+        // {
+        //   icon: "el-icon-lx-favor",
+        //   index: "charts",
+        //   title: "schart图表",
+        // },
+        // {
+        //   icon: "el-icon-rank",
+        //   index: "12",
+        //   title: "拖拽组件",
+        //   subs: [
+        //     {
+        //       index: "drag",
+        //       title: "拖拽列表",
+        //     },
+        //     {
+        //       index: "dialog",
+        //       title: "拖拽弹框",
+        //     },
+        //   ],
+        // },
+        // {
+        //   icon: "el-icon-lx-warn",
+        //   index: "13",
+        //   title: "错误处理",
+        //   subs: [
+        //     {
+        //       index: "permission",
+        //       title: "权限测试",
+        //     },
+        //     {
+        //       index: "404",
+        //       title: "404页面",
+        //     },
+        //   ],
+        // },
       ],
     };
   },
